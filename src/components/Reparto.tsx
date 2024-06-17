@@ -34,14 +34,14 @@ export const Reparto = ({repartoID}: Props) => {
           >
             <tr>
               <th scope="col" className="px-6 py-3 rounded-s-lg"> Dirección </th>
-              <th scope="col" className="px-6 py-3"> Lunes </th>
-							<th scope="col" className="px-6 py-3"> Martes </th>
-							<th scope="col" className="px-6 py-3"> Miércoles </th>
-							<th scope="col" className="px-6 py-3"> Jueves </th>
-							<th scope="col" className="px-6 py-3"> Viernes </th>
-							<th scope="col" className="px-6 py-3"> Sábados </th>
-							<th scope="col" className="px-6 py-3"> Domingos </th>
-              <th scope="col" className="px-6 py-3 rounded-e-lg"> ¿Revista? </th>
+              <th scope="col" className="px-6 py-3 text-center"> Lunes </th>
+							<th scope="col" className="px-6 py-3 text-center"> Martes </th>
+							<th scope="col" className="px-6 py-3 text-center"> Miércoles </th>
+							<th scope="col" className="px-6 py-3 text-center"> Jueves </th>
+							<th scope="col" className="px-6 py-3 text-center"> Viernes </th>
+							<th scope="col" className="px-6 py-3 text-center"> Sábados </th>
+							<th scope="col" className="px-6 py-3 text-center"> Domingos </th>
+              <th scope="col" className="px-6 py-3 rounded-e-lg text-center"> ¿Revista? </th>
             </tr>
           </thead>
           <tbody>
@@ -61,15 +61,15 @@ export const Reparto = ({repartoID}: Props) => {
 						)}
           </tbody>
           <tfoot>
-            <tr className="font-semibold text-gray-900 dark:text-white">
+            <tr className="font-semibold bg-white text-gray-900 dark:text-white dark:bg-gray-800">
               <th scope="row" className="px-6 py-3 text-base">Total</th>
-              <td className="px-6 py-3">{addresses.reduce((a, b) => a + b.monday, 0)}</td>
-              <td className="px-6 py-3">{addresses.reduce((a, b) => a + b.tuesday, 0)}</td>
-							<td className="px-6 py-3">{addresses.reduce((a, b) => a + b.wednesday, 0)}</td>
-							<td className="px-6 py-3">{addresses.reduce((a, b) => a + b.thursday, 0)}</td>
-							<td className="px-6 py-3">{addresses.reduce((a, b) => a + b.friday, 0)}</td>
-							<td className="px-6 py-3">{addresses.reduce((a, b) => a + b.saturday, 0)}</td>
-							<td className="px-6 py-3">{addresses.reduce((a, b) => a + b.sunday, 0)}</td>
+              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.monday, 0)}</td>
+              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.tuesday, 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.wednesday, 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.thursday, 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.friday, 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.saturday, 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.sunday, 0)}</td>
             </tr>
           </tfoot>
         </table>
