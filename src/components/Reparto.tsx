@@ -19,7 +19,7 @@ async function getDocuments(id) {
 export const Reparto = ({repartoID}: Props) => {
   const [addresses, setAddresses] = useState([])
   if (repartoID == "") {
-    return <h2>No se ha elegido reparto</h2>
+    return <h2 className="text-2xl text-white text-center p-6">No se ha elegido reparto</h2>
   }
 
   getDocuments(repartoID).then(res => setAddresses(res.documents))
