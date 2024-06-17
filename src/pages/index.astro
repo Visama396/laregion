@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Repartos } from '../components/Repartos'
+---
+<Layout title="Repartos La Región">
+  <main>
+    <header class="text-center">
+      <h1 class="text-white text-5xl font-bold">Repartos La Región</h1>
+    </header>
+		<section class="px-6 py-4">
+			<Repartos client:load />
+		</section>
+  </main>
+</Layout>

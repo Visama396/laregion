@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+import { AddAddress } from '../components/AddAddress'
+---
+<Layout title="Añadir dirección">
+  <main>
+    <AddAddress client:load />
+  </main>
+</Layout>
