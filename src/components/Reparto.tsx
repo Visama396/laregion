@@ -71,6 +71,9 @@ export const Reparto = ({repartoID}: Props) => {
 							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.friday, 0)}</td>
 							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.saturday, 0)}</td>
 							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.sunday, 0)}</td>
+              <td className="px-6 py-3 text-center">
+                {addresses.reduce((a,b) => a + b.magazine, 0)}
+              </td>
             </tr>
           </tfoot>
         </table>
