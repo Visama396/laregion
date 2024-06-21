@@ -27,6 +27,7 @@ export const AddAddress = () => {
     help: "",
     route: "",
     magazine: false,
+    off: false,
     repartidor: ""
   })
 
@@ -52,12 +53,13 @@ export const AddAddress = () => {
         sunday: formData.sunday,
         help: formData.help,
         magazine: formData.magazine,
+        off: formData.off,
         repartidor: formData.repartidor
       }
     )
 
     if (result.$id) {
-      setFormData({address: "", help: "", route: "", magazine: false, monday: 1, tuesday: 1, wednesday: 1, thursday: 1, friday: 1, saturday: 1, sunday: 1, repartidor: ""})
+      setFormData({address: "", help: "", route: "", magazine: false, off: false, monday: 1, tuesday: 1, wednesday: 1, thursday: 1, friday: 1, saturday: 1, sunday: 1, repartidor: ""})
     } else {
       console.log("Fallo al añadir")
     }
@@ -65,7 +67,7 @@ export const AddAddress = () => {
   }
 
   return (
-    <section className="bg-white dark:bg-gray-900 h-[100vh]">
+    <section className="bg-white dark:bg-gray-900 min-h-[100vh] h-[100%]">
       <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
         <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Añadir dirección</h2>
         <form action="#" onSubmit={handleSubmit}>
@@ -126,13 +128,17 @@ export const AddAddress = () => {
                   {repartidores.map(repartidor => <option key={repartidor.$id} value={repartidor.$id}>{repartidor.nombre}</option>)}
                 </select>
               </div> 
-              <div className="sm:col-span-6">
+              <div className="sm:col-span-4">
                   <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Instrucciones</label>
                   <textarea id="description" value={formData.help} onChange={(e) => setFormData({...formData, help: e.target.value})} rows={2} className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Escribe aquí instrucciones adicionales"></textarea>
               </div>
               <div className="w-full">
                 <label htmlFor="magazine" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">¿Revista?</label>
                 <input type="checkbox" checked={formData.magazine} onChange={(e) => setFormData({...formData, magazine: e.target.checked})} className="size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="off" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">¿Está de baja?</label>
+                <input type="checkbox" checked={formData.off} onChange={(e) => setFormData({...formData, off: e.target.checked})} className="size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
               </div>
           </div>
           <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 mt-2">Enviar</button>
