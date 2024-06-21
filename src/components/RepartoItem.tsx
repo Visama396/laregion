@@ -8,11 +8,12 @@ interface Props {
   saturday: number
   sunday: number
   magazine: boolean
+  off: boolean
 }
 
-export const RepartoItem = ({address, monday, tuesday, wednesday, thursday, friday, saturday, sunday, magazine}: Props) => {
+export const RepartoItem = ({address, monday, tuesday, wednesday, thursday, friday, saturday, sunday, magazine, off}: Props) => {
   return (
-    <tr className="bg-white dark:bg-gray-800">
+    <tr className={`bg-white dark:bg-gray-800 ${(off)? 'bg-red-400' : 'bg-white'} ${(off)? 'dark:bg-red-800' : 'dark:bg-gray-800'}`}>
 			<th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
 				{address}
 			</th>

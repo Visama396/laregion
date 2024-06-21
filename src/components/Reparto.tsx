@@ -55,8 +55,9 @@ export const Reparto = ({repartoID}: Props) => {
                 thursday={document.thursday}
                 friday={document.friday}
                 saturday={document.saturday}
-                sunday={document.saturday}
+                sunday={document.sunday}
                 magazine={document.magazine}
+                off={document.off}
               />
 						)}
           </tbody>

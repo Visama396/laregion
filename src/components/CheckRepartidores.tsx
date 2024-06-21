@@ -57,6 +57,11 @@ export const CheckRepartidores = () => {
       <section className="flex flex-col text-white text-lg p-4 rounded-md bg-gray-800 w-[60%] mx-auto">
 
       </section>
+      <section className="w-[60%] mx-auto text-right p-4">
+        <button>
+          Validar
+        </button>
+      </section>
     </section>
   )
 }
