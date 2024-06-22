@@ -64,15 +64,15 @@ export const Reparto = ({repartoID}: Props) => {
           <tfoot>
             <tr className="font-semibold bg-white text-gray-900 dark:text-white dark:bg-gray-800">
               <th scope="row" className="px-6 py-3 text-base">Total</th>
-              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.monday, 0)}</td>
-              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.tuesday, 0)}</td>
-							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.wednesday, 0)}</td>
-							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.thursday, 0)}</td>
-							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.friday, 0)}</td>
-							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.saturday, 0)}</td>
-							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + b.sunday, 0)}</td>
+              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.monday), 0)}</td>
+              <td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.tuesday), 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.wednesday), 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.thursday), 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.friday), 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.saturday), 0)}</td>
+							<td className="px-6 py-3 text-center">{addresses.reduce((a, b) => a + ((b.off)? 0 : b.sunday), 0)}</td>
               <td className="px-6 py-3 text-center">
-                {addresses.reduce((a,b) => a + b.magazine, 0)}
+                {addresses.reduce((a,b) => a + ((b.off)? 0 : b.magazine), 0)}
               </td>
             </tr>
           </tfoot>
