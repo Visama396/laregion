@@ -9,13 +9,15 @@ interface Props {
   sunday: number
   magazine: boolean
   off: boolean
+  help: string
 }
 
-export const RepartoItem = ({address, monday, tuesday, wednesday, thursday, friday, saturday, sunday, magazine, off}: Props) => {
+export const RepartoItem = ({address, monday, tuesday, wednesday, thursday, friday, saturday, sunday, magazine, off, help}: Props) => {
   return (
     <tr className={`bg-white dark:bg-gray-800 ${(off)? 'bg-red-400' : 'bg-white'} ${(off)? 'dark:bg-red-800' : 'dark:bg-gray-800'}`}>
 			<th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-				{address}
+				<p className="text-lg">{address}</p>
+        <p className="font-base text-sm">{help}</p>
 			</th>
 			<td className="px-6 py-4 text-center">{monday}</td>
 			<td className="px-6 py-4 text-center">{tuesday}</td>

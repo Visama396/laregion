@@ -58,6 +58,7 @@ export const Reparto = ({repartoID}: Props) => {
                 sunday={document.sunday}
                 magazine={document.magazine}
                 off={document.off}
+                help={document.help}
               />
 						)}
           </tbody>
