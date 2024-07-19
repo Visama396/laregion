@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Client, Databases, Query } from "appwrite"
 
 const client = new Client().setEndpoint("https://cloud.appwrite.io/v1").setProject("666df32a000334919ac3")
@@ -18,6 +18,10 @@ const repartos = [
 
 export const CheckRepartidores = () => {
   const [repartidores, setRepartidores] = useState([])
+
+  useEffect(() => {
+
+  }, [])
 
   const fetchRepartos = async () => {
     const documentos = await databases.listDocuments("666e1f2b000da5f62f9e", "66705cc50012c4af1c6a").catch(error => {throw new Error(error)})
@@ -107,8 +111,8 @@ export const CheckRepartidores = () => {
       <section className="flex flex-col text-white text-lg p-4 rounded-md bg-gray-800 w-[60%] mx-auto">
 
       </section>
-      <section className="w-[60%] mx-auto text-right p-4">
-        <button>
+      <section className="w-[60%] mx-auto text-right p-4 text-gray-800">
+        <button className="bg-white px-4 py-2 rounded-md font-bold text-xl">
           Validar
         </button>
       </section>
