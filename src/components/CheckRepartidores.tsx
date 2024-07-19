@@ -113,7 +113,7 @@ export const CheckRepartidores = ({day}: Props) => {
         }
       </section>
       <section className="w-[60%] mx-auto text-right p-4 text-gray-800">
-        <button className="bg-white px-4 py-2 rounded-md font-bold text-xl" onClick={() => hola()}>
+        <button className="bg-white px-4 py-2 rounded-md font-bold text-xl" onClick={() => hola()} disabled={repartidores.length == 0}>
           Validar
         </button>
       </section>
