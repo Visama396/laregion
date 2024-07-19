@@ -67,6 +67,18 @@ export const CheckRepartidores = ({day}: Props) => {
       setRepartidores(res)
     })
   }, [])
+
+  function hola() {
+    console.log("Hola")
+    fetch("https://script.google.com/macros/s/AKfycbzlcI6xim9vp6f8GuXWAfy00ADy1YwEzmnNjdgEjsVzU7Q6oULm0x7XZGTWk_CcJA7Ugg/exec", {
+      method: "POST",
+      body: JSON.stringify("DATA"),
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      redirect: "follow", // Importante
+    });
+  }
   
   return (
     <section className="flex flex-col gap-4">
@@ -101,7 +113,7 @@ export const CheckRepartidores = ({day}: Props) => {
         }
       </section>
       <section className="w-[60%] mx-auto text-right p-4 text-gray-800">
-        <button className="bg-white px-4 py-2 rounded-md font-bold text-xl">
+        <button className="bg-white px-4 py-2 rounded-md font-bold text-xl" onClick={() => hola()}>
           Validar
         </button>
       </section>
