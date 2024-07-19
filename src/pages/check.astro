@@ -1,20 +1,43 @@
 ---
-import Layout from "../layouts/Layout.astro"
-import { CheckRepartidores } from '../components/CheckRepartidores'
+import Layout from "../layouts/Layout.astro";
+import { CheckRepartidores } from "../components/CheckRepartidores";
 
-const d = new Date()
-d.setDate(d.getDate() + 1)
+const d = new Date();
+d.setDate(d.getDate() + 1);
 
-const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+const months = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+const days = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
 
-let formatted = `${days[d.getDay()]}, ${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`
+let formatted = `${days[d.getDay()]}, ${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
+
 ---
+
 <Layout title="Comprobación diaria">
   <main class="p-4">
     <header class="mb-4">
       <h1 class="text-2xl text-white font-medium text-center">{formatted}</h1>
     </header>
-    <CheckRepartidores />
+    <CheckRepartidores day={d.getDay()} client:load />
   </main>
 </Layout>

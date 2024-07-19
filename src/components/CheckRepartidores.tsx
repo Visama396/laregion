@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import { Client, Databases, Query } from "appwrite"
 
+interface Props {
+  day: number
+}
+
 const client = new Client().setEndpoint("https://cloud.appwrite.io/v1").setProject("666df32a000334919ac3")
 
 const databases = new Databases(client)
@@ -16,100 +20,85 @@ const repartos = [
   {id:"666e221f00038b42c7a7", name:"Reparto 129"},
 ]
 
-export const CheckRepartidores = () => {
+let repartid = [
+  {name: "Víctor", repartos: [], total: 0},
+  {name: "Nícber", repartos: [], total: 0},
+  {name: "Noemí", repartos: [], total: 0}
+]
+
+export const CheckRepartidores = ({day}: Props) => {
   const [repartidores, setRepartidores] = useState([])
 
-  useEffect(() => {
-
-  }, [])
-
   const fetchRepartos = async () => {
-    const documentos = await databases.listDocuments("666e1f2b000da5f62f9e", "66705cc50012c4af1c6a").catch(error => {throw new Error(error)})
+    for (let rep of repartos) {
+      const result = await databases.listDocuments("666e1f2b000da5f62f9e", rep.id, [Query.limit(200)]).catch(error => {throw new Error(error)})
   
-    if (documentos.total == 0) return
-  
-    for (let documento of documentos.documents) {
-      if (!documento.off) {
-        console.log(documento)
+      if (result.documents[0]) {
+        let total = 0;
+        if (repartid.find(reps => reps.name == result.documents[0].repartidor.nombre)) {
+          for(let document of result.documents) {
+            if (!document.off) {
+              console.log(document)
+              switch(day) {
+                case 1: total+=document.monday;break;
+                case 2: total+=document.tuesday;break;
+                case 3: total+=document.wednesday;break;
+                case 4: total+=document.thursday;break;
+                case 5: total+=document.friday;break;
+                case 6: total+=document.saturday;break;
+                case 7: total+=document.sunday;break;
+              }
+            }
+          }
+          if (!repartid.find(reps => reps.name == result.documents[0].repartidor.nombre).repartos.find( rpts => rpts.name == rep.name)) {
+            repartid.find(reps => reps.name == result.documents[0].repartidor.nombre).repartos.push({name: rep.name, amount: total})
+            repartid.find(reps => reps.name == result.documents[0].repartidor.nombre).total += total
+          }
+        }
+        console.log(repartid.find(reps => reps.name == result.documents[0].repartidor.nombre))
       }
     }
-
-    setRepartidores([
-      {id: "66758d34002497a1ec99", name: "Noemí", repartos: [], total: 0},
-      {id: "66758d740010dc80cc3d", name: "Víctor", repartos: [], total: 0},
-      {id: "66759b5c0021f82ada66", name: "Enrique", repartos: [], total: 0},
-      {id: "66758d9c00086a7ae906", name: "Rebeca", repartos: [], total: 0},
-      {id: "66759b6600066881cead", name: "Nícber", repartos: [], total: 0},
-      {id: "6675a387002c2e774bbe", name: "Natalia", repartos: [], total: 0},
-      {id: "6675a38e0016d5e76191", name: "Ramón", repartos: [], total: 0},
-      {id: "6675a39a003e70f21d45", name: "Celia", repartos: [], total: 0},
-      {id: "6675a37b0035575fa841", name: "Mochi", repartos: [], total: 0}
-    ])
+  
+    return repartid
   }
 
-  fetchRepartos()
-
+  useEffect(() => {
+    fetchRepartos().then(res => {
+      setRepartidores(res)
+    })
+  }, [])
+  
   return (
     <section className="flex flex-col gap-4">
       <section className="flex flex-col text-white text-lg p-4 rounded-md bg-gray-800 w-[60%] mx-auto">
-        {
-          repartidores.map(repartidor => 
-            <div className="flex gap-2">
-              <span className="text-xl font-semibold w-20">{repartidor.name}</span>
-              <span>{repartidor.total}</span>
-            </div>
-          )
+        { repartidores.length > 0 ?
+          (
+            repartidores.map(repartidor => 
+              (
+                <div className="flex gap-2">
+                  <span className="text-xl font-semibold w-20">{repartidor.name}</span>
+                  {
+                    repartidor.repartos.map(reparto => 
+                      <span>{reparto.name} ({reparto.amount})</span>
+                    )
+                  }
+                </div>
+              )
+          )) : (<h2>Calculando resumen</h2>)
         }
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Enrique</span>
-          <span>Reparto 7 (39)</span>
-          <span>Reparto 9 (24)</span>
-          <span>Reparto 12 (47)</span>
-          <span>Reparto 21 (33)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Ramón</span>
-          <span>Reparto 17 (81)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Celia</span>
-          <span>Reparto 13 (28)</span>
-          <span>Reparto 28 (77)</span>
-          <span>Reparto 29 (35)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Noemí</span>
-          <span>Reparto 13 (19)</span>
-          <span>Reparto 23 (144)</span>
-          <span>Reparto 30 (56)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Nícber</span>
-          <span>Reparto 10 (39)</span>
-          <span>Reparto 16 (35)</span>
-          <span>Reparto 19 (37)</span>
-          <span>Reparto 129 (29)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Natalia</span>
-          <span>Reparto 5 (22)</span>
-          <span>Reparto 11 (36)</span>
-          <span>Reparto 26 (75)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Mochi</span>
-          <span>Reparto 8 (44)</span>
-          <span>Reparto 14 (10)</span>
-          <span>Reparto 15 (27)</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-xl font-semibold w-20">Rebeca</span>
-          <span>Reparto 22 (66)</span>
-          <span>Reparto 31 (70)</span>
-        </div>
       </section>
       <section className="flex flex-col text-white text-lg p-4 rounded-md bg-gray-800 w-[60%] mx-auto">
-
+      { repartidores.length > 0 ?
+          (
+            repartidores.map(repartidor => 
+              (
+                <div className="flex gap-2">
+                  <span className="text-xl font-semibold w-20">{repartidor.name}</span>
+                  <span>{repartidor.total}</span>
+                </div>
+              )
+          )) : (<h2>Calculando resumen</h2>)
+        }
       </section>
       <section className="w-[60%] mx-auto text-right p-4 text-gray-800">
         <button className="bg-white px-4 py-2 rounded-md font-bold text-xl">
