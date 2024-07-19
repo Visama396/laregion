@@ -49,7 +49,7 @@ export const Repartos = () => {
         <UserIcon />
         Iniciar Sesión
       </button>
-      <section className="inline-block w-[200px]">
+      <section className="inline-block w-[200px] mb-4">
         <label
           htmlFor="reparto"
           className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
