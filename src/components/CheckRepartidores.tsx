@@ -46,7 +46,7 @@ export const CheckRepartidores = ({day}: Props) => {
                 case 4: total+=document.thursday;break;
                 case 5: total+=document.friday;break;
                 case 6: total+=document.saturday;break;
-                case 7: total+=document.sunday;break;
+                case 0: total+=document.sunday;break;
               }
             }
           }
