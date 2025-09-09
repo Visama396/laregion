@@ -68,11 +68,10 @@ export const CheckRepartidores = ({day}: Props) => {
     })
   }, [])
 
-  // https://script.google.com/macros/s/AKfycbxKVqZ3fxGXnIdA9n8CGzTc9QHaXQGeFEcYt-8JDJGagnwVYW6XGPpkTLJyAbXiomsxvw/exec
   function hola() {
-    console.log("Hola")
     fetch("https://script.google.com/macros/s/AKfycbxKVqZ3fxGXnIdA9n8CGzTc9QHaXQGeFEcYt-8JDJGagnwVYW6XGPpkTLJyAbXiomsxvw/exec", {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify([{ col1: "Noe", col2: "Vic", col3: "Mar" }]),
       headers: {
         "Content-Type": "application/json",
