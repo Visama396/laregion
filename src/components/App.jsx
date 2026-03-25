@@ -162,7 +162,7 @@ export default function App() {
               <td className='border border-gray-300 text-center'>{reparto.friday}</td>
               <td className='border border-gray-300 text-center'>{reparto.saturday}</td>
               <td className='border border-gray-300 text-center'>{reparto.sunday}</td>
-              <td className='border border-gray-300 text-center'>{reparto.magazine}</td>
+              <td className='border border-gray-300 text-center'><input type='checkbox' checked={reparto.magazine} disabled /></td>
               <td className='border border-gray-300 text-center'>{reparto.extra}</td>
             </tr>
           ))}
