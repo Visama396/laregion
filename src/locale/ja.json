@@ -26,5 +26,6 @@
   "login": "ログイン",
   "loginbtn": "ログイン",
   "username": "ユーザー名",
-  "password": "パスワード"
+  "password": "パスワード",
+  "status": "ステータス"
 }

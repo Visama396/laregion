@@ -26,5 +26,6 @@
   "login": "Iniciar sesión",
   "loginbtn": "Entrar",
   "username": "Usuario",
-  "password": "Contraseña"
+  "password": "Contraseña",
+  "status": "Estado"
 }

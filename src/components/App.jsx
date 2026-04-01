@@ -1,31 +1,50 @@
 import { useState, useEffect } from "react"
 
-import { supabase } from "../utils/supabase"
-import { translate } from "../utils/translate"
+import { getDelivery } from "@/utils/supabase"
+import { translate } from "@/utils/translate"
 
-import UserForm from "./UserForm"
+import UserForm from "@/components/UserForm"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function App() {
 	const [profile, setProfile] = useState(null)
 	const [selectableDeliveries, setSelectableDeliveries] = useState([])
   const [selectedDelivery, setSelectedDelivery] = useState("")
+  const [deliveryData, setDeliveryData] = useState([])
   const [language, setLanguage] = useState('es')
-  const [selectedDay, setSelectedDay] = useState("martes")
-	const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+  const [selectedDay, setSelectedDay] = useState(new Date().toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase())
+  const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+  const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
 
 	useEffect(() => {
 		if (profile) {
 			setSelectableDeliveries(profile.deliveries);
 		}
-	}, [profile])
+  }, [profile])
+
+  useEffect(() => {
+    if (selectedDelivery.length > 0) {
+      getDelivery(selectedDelivery).then(({ data, error }) => {
+        if (error) {
+          console.error(error)
+          return
+        }
+
+        if (data) {
+          setDeliveryData(data)
+        }
+      })
+    }
+	}, [selectedDelivery])
 
 	return (
 		<div className="flex flex-col">
 			<div className="flex p-4 items-center gap-2">
 				<UserForm profile={profile} setProfile={setProfile} language={language} />
 				{selectableDeliveries.length > 0 && (
-					<select
-						className="bg-[#333] text-white p-2"
+          <select
+						className="bg-white border-gray-300 shadow-md p-2"
 						value={selectedDelivery}
 						onChange={(e) => setSelectedDelivery(e.target.value)}
 					>
@@ -42,7 +61,7 @@ export default function App() {
         )}
         <div className="flex-1"></div>
         <div>
-          <select className="bg-[#333] text-white p-2" value={language} onChange={(e) => setLanguage(e.target.value)}>
+          <select className="bg-white border-gray-300 shadow-md p-2" value={language} onChange={(e) => setLanguage(e.target.value)}>
             <option value="es">{translate("spanish", language)}</option>
             <option value="en">{translate("english", language)}</option>
             <option value="de">{translate("german", language)}</option>
@@ -52,19 +71,92 @@ export default function App() {
           </select>
         </div>
       </div>
-      <div className="flex flex-col">
-        <div className="p-4 max-w-5xl mx-auto">
-          <div className="flex gap-2 mb-4 overflow-x-auto">
-            {days.map((d) => (
-              <button
-                key={d}
-                className={`capitalize text-2xl w-10 rounded-sm ${selectedDay === d ? "bg-[#333] text-white" : "bg-white text-[#333] border border-white"}`}
-                onClick={() => setSelectedDay(d)}
-              >
-                {d.slice(0, 1)}
-              </button>
-            ))}
-          </div>
+      <div className="p-4 max-w-5xl mx-auto">
+        <div className="flex md:hidden gap-2 mb-4">
+          {days.map((d) => (
+            <Button
+              key={d}
+              variant={selectedDay === d ? "default" : "outline"}
+              onClick={() => setSelectedDay(d)}
+              className="capitalize"
+            >
+              {translate(d, language).slice(0,3)}
+            </Button>
+          ))}
+        </div>
+
+        <div className="grid gap-3 md:hidden">
+          {deliveryData.map((r, i) => (
+            <Card key={i} className={`rounded-2xl shadow ${r.baja ? "bg-red-100" : "bg-white"}`}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm font-semibold">
+                    {translate('delivery', language)} {r.numero}
+                  </div>
+                  <div className="flex gap-2">
+                    {r.baja && (
+                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">BAJA</span>
+                    )}
+                    {r.revista && (
+                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded">Revista</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="font-medium text-lg mb-1">
+                  {r.direccion}
+                </div>
+
+                <div className="text-xl font-bold mb-2">
+                  📰 {r[dayMap[selectedDay]]} periódicos
+                </div>
+                {r.extra && (
+                  <div className="text-sm text-gray-600">
+                    📝 {r.extra}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="hidden md:block">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                <th className="p-2 text-left">{translate("address", language)}</th>
+                <th className="p-2 text-left">{translate("monday", language)}</th>
+                <th className="p-2 text-left">{translate("tuesday", language)}</th>
+                <th className="p-2 text-left">{translate("wednesday", language)}</th>
+                <th className="p-2 text-left">{translate("thursday", language)}</th>
+                <th className="p-2 text-left">{translate("friday", language)}</th>
+                <th className="p-2 text-left">{translate("saturday", language)}</th>
+                <th className="p-2 text-left">{translate("sunday", language)}</th>
+                <th className="p-2 text-left">{translate("status", language)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deliveryData.map((delivery) => (
+                <tr key={delivery.id}>
+                  <td className="p-2">
+                    <p>{delivery.direccion}</p>
+                    <p className="text-sm text-gray-400">{delivery.extra}</p>
+                  </td>
+                  <td className="p-2">{delivery.lunes}</td>
+                  <td className="p-2">{delivery.martes}</td>
+                  <td className="p-2">{delivery.miercoles}</td>
+                  <td className="p-2">{delivery.jueves}</td>
+                  <td className="p-2">{delivery.viernes}</td>
+                  <td className="p-2">{delivery.sabado}</td>
+                  <td className="p-2">{delivery.domingo}</td>
+                  <td className="p-2 flex gap-2">
+                    {delivery.baja && <span>🔴</span>}
+                    {delivery.revista && <span>🟡</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 		</div>

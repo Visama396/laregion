@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { supabase, getUser } from "../utils/supabase"
+import { getProfile, getUser } from "../utils/supabase"
 import { translate } from "../utils/translate"
 
 export default function UserForm({ profile, setProfile, language }) {
@@ -32,10 +32,7 @@ export default function UserForm({ profile, setProfile, language }) {
 		const user = await getUser(name, password)
 
 		if (user) {
-			const { data, error } = await supabase
-				.from("profiles")
-				.select()
-				.eq("id", user.id)
+			const { data, error } = await getProfile(user.id)
 
 			if (error) {
         console.error(error)
@@ -53,7 +50,7 @@ export default function UserForm({ profile, setProfile, language }) {
 
 	if (showForm) {
 		return (
-			<div className="fixed flex inset-0 justify-center items-center bg-black/90">
+			<div className="fixed flex inset-0 justify-center items-center bg-black/95">
 				<div className="bg-white p-4">
 					<h1 className="text-3xl font-bold">{translate("login", language)}</h1>
 					<form className="flex flex-col mt-4">
@@ -88,16 +85,7 @@ export default function UserForm({ profile, setProfile, language }) {
 	} else {
 		if (userProfile) {
       return (
-        <div className="text-white">Logged in as, {userProfile.name}</div>
-			)
-		} else {
-			return (
-				<button
-					onClick={() => setShowForm(true)}
-					className="cursor-pointer p-3 bg-amber-200 hover:bg-amber-200/90"
-				>
-					{translate("login", language)}
-				</button>
+        <div>Logged in as, {userProfile.name}</div>
 			)
 		}
 	}

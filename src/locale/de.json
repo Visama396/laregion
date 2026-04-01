@@ -26,5 +26,6 @@
   "login": "Anmelden",
   "loginbtn": "Einloggen",
   "username": "Benutzername",
-  "password": "Passwort"
+  "password": "Passwort",
+  "status": "Status"
 }

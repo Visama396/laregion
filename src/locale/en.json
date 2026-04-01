@@ -26,5 +26,6 @@
   "login": "Login",
   "loginbtn": "Enter",
   "username": "Username",
-  "password": "Password"
+  "password": "Password",
+  "status": "Status"
 }

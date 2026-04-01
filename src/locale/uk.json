@@ -26,5 +26,6 @@
   "login": "Вхід",
   "loginbtn": "Увійти",
   "username": "Ім’я користувача",
-  "password": "Пароль"
+  "password": "Пароль",
+  "status": "Статус"
 }
