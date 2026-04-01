@@ -124,10 +124,10 @@ export default function App() {
                   </div>
                   <div className="flex gap-2">
                     {r.baja && (
-                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">BAJA</span>
+                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">{translate('leave', language).toUpperCase()}</span>
                     )}
                     {r.revista && (
-                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded">Revista</span>
+                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded">{translate('magazine', language)}</span>
                     )}
                   </div>
                 </div>
