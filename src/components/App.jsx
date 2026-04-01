@@ -59,7 +59,7 @@ export default function App() {
 						))}
 					</select>
         )}
-        <div className="flex-1"></div>
+        <div className="hidden md:flex-1"></div>
         <div>
           <select className="bg-white border-gray-300 shadow-md p-2" value={language} onChange={(e) => setLanguage(e.target.value)}>
             <option value="es">{translate("spanish", language)}</option>
@@ -80,7 +80,7 @@ export default function App() {
               onClick={() => setSelectedDay(d)}
               className="capitalize"
             >
-              {translate(d, language).slice(0,3)}
+              {translate(d, language).slice(0,1)}
             </Button>
           ))}
         </div>
