@@ -12,6 +12,11 @@ export const checkAuth = async () => {
 	return session
 }
 
+export const getCachedUser = async () => {
+	const { data, error } = await supabase.auth.getUser()
+	return { data, error }
+}
+
 export const getUser = async (name: string, password: string) => {
 	const fakeEmail = `${name}@app.local`
 	const {
@@ -21,11 +26,21 @@ export const getUser = async (name: string, password: string) => {
 }
 
 export const getProfile = async (userId: string) => {
-	const { data, error } = await supabase.from('profiles').select().eq('id', userId)
+	const { data, error } = await supabase.from('profiles').select().eq('id', userId).single()
 	return { data, error }
 }
 
-export const getDelivery = async (deliveryId: string) => {
-  const { data, error } = await supabase.from('deliveries').select().eq('numero', parseInt(deliveryId)).order('orden')
+export const getDelivery = async (deliveryId: number) => {
+  const { data, error } = await supabase.from('deliveries').select().eq('numero', deliveryId).order('orden')
+  return { data, error }
+}
+
+export const insertAddress = async (address: object) => {
+  const { data, error } = await supabase.from('deliveries').insert(address).select()
+  return { data, error }
+}
+
+export const getDeliveryCount = async (deliveryId: number) => {
+  const { data, error } = await supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('numero', deliveryId)
   return { data, error }
 }

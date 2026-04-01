@@ -5,8 +5,8 @@
   "japanese": "日本語",
   "korean": "韓国語",
   "ukrainian": "ウクライナ語",
-  "selectdeliverer": "配達担当者を選択",
-  "selectdelivery": "配達を選択",
+  "selectdeliverer": "配達員を選択",
+  "selectdelivery": "配達便を選択",
   "delivery": "配達",
   "deliveries": "配達一覧",
   "address": "住所",
@@ -18,8 +18,8 @@
   "saturday": "土",
   "sunday": "日",
   "magazine": "マガジン",
-  "extra": "配達指示",
-  "extraholder": "Delivery instructions",
+  "extra": "その他",
+  "extraholder": "配送指示事項",
   "addaddress": "住所を追加",
   "add": "追加",
   "close": "閉じる",
@@ -27,5 +27,10 @@
   "loginbtn": "ログイン",
   "username": "ユーザー名",
   "password": "パスワード",
-  "status": "ステータス"
+  "status": "ステータス",
+  "leave": "退会済み",
+  "order": "順序",
+  "newspaper": "新聞",
+  "newspapers": "新聞",
+  "loggedIn": "ログイン中: "
 }

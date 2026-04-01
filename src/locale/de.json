@@ -5,7 +5,7 @@
   "japanese": "Japanisch",
   "korean": "Koreanisch",
   "ukrainian": "Ukrainisch",
-  "selectdeliverer": "Lieferer auswählen",
+  "selectdeliverer": "Zusteller auswählen",
   "selectdelivery": "Lieferung auswählen",
   "delivery": "Lieferung",
   "deliveries": "Lieferungen",
@@ -18,8 +18,8 @@
   "saturday": "Samstag",
   "sunday": "Sonntag",
   "magazine": "Magazin",
-  "extra": "Lieferhinweise",
-  "extraholder": "Delivery instructions",
+  "extra": "Zusatz",
+  "extraholder": "Lieferhinweise",
   "addaddress": "Adresse hinzufügen",
   "add": "Hinzufügen",
   "close": "Schließen",
@@ -27,5 +27,10 @@
   "loginbtn": "Einloggen",
   "username": "Benutzername",
   "password": "Passwort",
-  "status": "Status"
+  "status": "Status",
+  "leave": "Abgemeldet",
+  "order": "Reihenfolge",
+  "newspaper": "Zeitung",
+  "newspapers": "Zeitungen",
+  "loggedIn": "Angemeldet als "
 }

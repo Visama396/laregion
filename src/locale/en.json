@@ -27,5 +27,10 @@
   "loginbtn": "Enter",
   "username": "Username",
   "password": "Password",
-  "status": "Status"
+  "status": "Status",
+  "leave": "Unsubscribed",
+  "order": "Order",
+  "newspaper": "Newspaper",
+  "newspapers": "Newspapers",
+  "loggedIn": "Logged in as "
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { getProfile, getUser } from "../utils/supabase"
+import { getProfile, getUser, getCachedUser } from "../utils/supabase"
 import { translate } from "../utils/translate"
 
 export default function UserForm({ profile, setProfile, language }) {
@@ -13,6 +13,7 @@ export default function UserForm({ profile, setProfile, language }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoging(true)
     setErrorUsername("")
     setErrorPassword("")
 
@@ -28,7 +29,6 @@ export default function UserForm({ profile, setProfile, language }) {
       return
     }
 
-    setIsLoging(true)
 		const user = await getUser(name, password)
 
 		if (user) {
@@ -40,20 +40,48 @@ export default function UserForm({ profile, setProfile, language }) {
 				return
 			}
 			if (data) {
-				setUserProfile(data[0])
-        setProfile(data[0])
+				setUserProfile(data)
+        setProfile(data)
         setShowForm(false)
 				setIsLoging(false)
 			}
 		}
-	}
+  }
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data, error } = await getCachedUser()
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      if (data?.user) {
+        const { data: profile, error: profError } = await getProfile(data.user.id)
+
+        if (profError) {
+          console.error(profError)
+          return
+        }
+
+        if (profile && profile.length > 0) {
+          setUserProfile(profile[0])
+          setProfile(profile[0])
+          setShowForm(false)
+        }
+      }
+    }
+
+    loadUser()
+  }, [])
 
 	if (showForm) {
 		return (
 			<div className="fixed flex inset-0 justify-center items-center bg-black/95">
 				<div className="bg-white p-4">
 					<h1 className="text-3xl font-bold">{translate("login", language)}</h1>
-					<form className="flex flex-col mt-4">
+					<div className="flex flex-col mt-4">
 						<input
 							className="px-2 py-1 bg-gray-500/30 outline-0 rounded-md"
 							type="text"
@@ -78,14 +106,14 @@ export default function UserForm({ profile, setProfile, language }) {
               {isLoging && <span className="loader"></span>}
 							{!isLoging && translate("loginbtn", language)}
             </button>
-					</form>
+					</div>
 				</div>
 			</div>
 		)
 	} else {
 		if (userProfile) {
       return (
-        <div>Logged in as, {userProfile.name}</div>
+        <div>{translate("loggedIn", language)} {userProfile.name}</div>
 			)
 		}
 	}

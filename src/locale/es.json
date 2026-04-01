@@ -27,5 +27,10 @@
   "loginbtn": "Entrar",
   "username": "Usuario",
   "password": "Contraseña",
-  "status": "Estado"
+  "status": "Estado",
+  "leave": "Baja",
+  "order": "Orden",
+  "newspaper": "Periódico",
+  "newspapers": "Periódicos",
+  "loggedIn": "Iniciado como "
 }
