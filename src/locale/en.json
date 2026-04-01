@@ -32,5 +32,6 @@
   "order": "Order",
   "newspaper": "Newspaper",
   "newspapers": "Newspapers",
-  "loggedIn": "Logged in as "
+  "loggedIn": "Logged in as ",
+  "actions": "Actions"
 }

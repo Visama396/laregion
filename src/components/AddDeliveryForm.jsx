@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,7 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
     revista: false
   })
   const [showForm, setShowForm] = useState(false)
+  const [canEdit, setCanEdit] = useState(false)
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -34,8 +35,20 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
   const handleSubmit = (e) => {
     e.preventDefault()
     onAdd(form)
-    setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+    resetForm()
   }
+
+  const resetForm = (resetNumero = false) => {
+    if (resetNumero) {
+      setForm({...form, numero: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+    } else {
+      setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+    }
+  }
+
+  useEffect(() => {
+    setCanEdit(form.numero > 0)
+  }, [form.numero])
 
   if (selectableDeliveries.length === 0) {
     return null
@@ -64,34 +77,34 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
                   </SelectContent>
                 </Select>
                 <div className="flex gap-2 items-center">
-                  <Checkbox id="revista" checked={form.revista} onCheckedChange={(value) => handleChange("revista", value)} />
+                  <Checkbox disabled={!canEdit} id="revista" checked={form.revista} onCheckedChange={(value) => handleChange("revista", value)} />
                   <label htmlFor="revista">{translate("magazine", language)}</label>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <Checkbox id="baja" checked={form.baja} onCheckedChange={(value) => handleChange("baja", value)} />
+                  <Checkbox disabled={!canEdit} id="baja" checked={form.baja} onCheckedChange={(value) => handleChange("baja", value)} />
                   <label htmlFor="baja">{translate("leave", language)}</label>
                 </div>
               </div>
               <div className="flex flex-col">
                 <label htmlFor="orden">{translate("order", language)}</label>
-                <Input id="orden" type="number" placeholder={form.orden} value={form.orden} onChange={(e) => handleChange("orden", e.target.value)} />
+                <Input disabled={!canEdit} id="orden" type="number" placeholder={form.orden} value={form.orden} onChange={(e) => handleChange("orden", e.target.value)} />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Input placeholder={translate("address", language)} value={form.direccion} onChange={(e) => handleChange("direccion", e.target.value)} />
-              <Input placeholder={translate("extra", language)} value={form.extra} onChange={(e) => handleChange("extra", e.target.value)} />
+              <Input disabled={!canEdit} placeholder={translate("address", language)} value={form.direccion} onChange={(e) => handleChange("direccion", e.target.value)} />
+              <Input disabled={!canEdit} placeholder={translate("extra", language)} value={form.extra} onChange={(e) => handleChange("extra", e.target.value)} />
             </div>
             <div className="grid grid-cols-3 gap-2">
               {["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map((day) => (
                 <div key={day}>
                   <label htmlFor={day}>{day}</label>
-                  <Input id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
+                  <Input disabled={!canEdit} id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
                 </div>
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <Button onClick={handleSubmit}>{translate('add', language)}</Button>
-              <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => setShowForm(false)}>{translate('close', language)}</Button>
+              <Button disabled={!canEdit} onClick={handleSubmit}>{translate('add', language)}</Button>
+              <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => {resetForm(true); setShowForm(false)}}>{translate('close', language)}</Button>
             </div>
           </div>
         </div>
@@ -99,7 +112,7 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
     )
   } else {
     return (
-      <Button variant="default" onClick={() => setShowForm(true)}>{translate("addaddress", language)}</Button>
+      <Button variant="default" onClick={() => {resetForm(true); setShowForm(true)}}>{translate("addaddress", language)}</Button>
     )
   }
 

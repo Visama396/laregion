@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react"
 
-import { getDelivery, insertAddress } from "@/utils/supabase"
+import { getDelivery, insertAddress, updateAddress } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
 import UserForm from "@/components/UserForm"
 import AddDeliveryForm from "@/components/AddDeliveryForm"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+import { MoreHorizontalIcon } from "lucide-react"
 
 export default function App() {
 	const [profile, setProfile] = useState(null)
@@ -59,28 +62,42 @@ export default function App() {
     }
   }
 
+  const editRow = (delivery) => {
+
+  }
+
+  const subscribe = (delivery) => {
+    delivery.baja = false
+    updateAddress(delivery).then(({ data, error }) => {
+      if (error) {
+        console.error(error)
+        return
+      }
+      if (data && data.length > 0) {
+        setDeliveryData((prev) => prev.map((d) => d.id === data.id ? data : d))
+      }
+    })
+  }
+
+  const unsubscribe = (delivery) => {
+    delivery.baja = true
+    updateAddress(delivery).then(({ data, error }) => {
+      if (error) {
+        console.error(error)
+        return
+      }
+      if (data && data.length > 0) {
+        setDeliveryData((prev) => prev.map((d) => d.id === data.id ? data : d))
+      }
+    })
+  }
+
 	return (
 		<div className="flex flex-col">
 			<div className="flex p-4 justify-between">
         <div className="flex items-center gap-2">
           <UserForm profile={profile} setProfile={setProfile} language={language} />
-            {selectableDeliveries.length > 0 && (
-              <Select defaultValue="" onValueChange={(value) => setSelectedDelivery(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder={translate("selectdelivery", language)} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {selectableDeliveries.map((delivery) => (
-                      <SelectItem key={delivery} value={delivery}>
-                        {translate("delivery", language)} {delivery}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          <AddDeliveryForm language={language} selectableDeliveries={selectableDeliveries} onAdd={handleAddDelivery} />
+          {profile && profile.canEdit && <AddDeliveryForm language={language} selectableDeliveries={selectableDeliveries} onAdd={handleAddDelivery} />}
         </div>
         <div>
           <Select defaultValue={language} onValueChange={(value) => setLanguage(value)}>
@@ -100,7 +117,24 @@ export default function App() {
           </Select>
         </div>
       </div>
-      <div className="p-4 max-w-5xl mx-auto">
+      <div className="p-4">
+        {selectableDeliveries.length > 0 && (
+          <Select defaultValue="" onValueChange={(value) => setSelectedDelivery(value)}>
+            <SelectTrigger>
+              <SelectValue placeholder={translate("selectdelivery", language)} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {selectableDeliveries.map((delivery) => (
+                  <SelectItem key={delivery} value={delivery}>
+                    {translate("delivery", language)} {delivery}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
+
         <div className="flex md:hidden gap-2 mb-4">
           {days.map((d) => (
             <Button
@@ -150,7 +184,7 @@ export default function App() {
         </div>
 
         <div className="hidden md:block">
-          <table className="w-full border-collapse">
+          {deliveryData.length > 0 && (<table className="w-full border-collapse">
             <thead>
               <tr>
                 <th className="p-2 text-left">{translate("address", language)}</th>
@@ -162,6 +196,7 @@ export default function App() {
                 <th className="p-2 text-left">{translate("saturday", language)}</th>
                 <th className="p-2 text-left">{translate("sunday", language)}</th>
                 <th className="p-2 text-left">{translate("status", language)}</th>
+                {profile && profile.canEdit && <th className="p-2 text-right">{translate("actions", language)}</th>}
               </tr>
             </thead>
             <tbody>
@@ -169,7 +204,7 @@ export default function App() {
                 <tr key={delivery.id}>
                   <td className="p-2">
                     <p>{delivery.direccion}</p>
-                    <p className="text-sm text-gray-400">{delivery.extra}</p>
+                    {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
                   </td>
                   <td className="p-2">{delivery.lunes}</td>
                   <td className="p-2">{delivery.martes}</td>
@@ -182,10 +217,26 @@ export default function App() {
                     {delivery.baja && <span>🔴</span>}
                     {delivery.revista && <span>🟡</span>}
                   </td>
+                  {profile && profile.canEdit && <td className="p-2 text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreHorizontalIcon />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => editRow(delivery)}>Edit</DropdownMenuItem>
+                        {delivery.baja === true && <DropdownMenuItem onClick={() => subscribe(delivery)}>Dar de alta</DropdownMenuItem>}
+                        {delivery.baja === false && <DropdownMenuItem onClick={() => unsubscribe(delivery)}>Dar de baja</DropdownMenuItem>}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>}
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table>)}
+
         </div>
       </div>
 		</div>

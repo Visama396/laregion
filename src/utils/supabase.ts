@@ -44,3 +44,8 @@ export const getDeliveryCount = async (deliveryId: number) => {
   const { data, error } = await supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('numero', deliveryId)
   return { data, error }
 }
+
+export const updateAddress = async (delivery: any) => {
+  const { data, error } = await supabase.from('deliveries').update(delivery).eq('id', delivery.id).select()
+  return { data, error }
+}

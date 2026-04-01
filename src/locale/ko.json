@@ -32,5 +32,6 @@
   "order": "순서",
   "newspaper": "신문",
   "newspapers": "신문",
-  "loggedIn": "로그인 계정: "
+  "loggedIn": "로그인 계정: ",
+  "actions": "액션"
 }
