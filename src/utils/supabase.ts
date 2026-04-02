@@ -41,8 +41,8 @@ export const insertAddress = async (address: object) => {
 }
 
 export const getDeliveryCount = async (deliveryId: number) => {
-  const { data, error } = await supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('numero', deliveryId)
-  return { data, error }
+  const { count, error } = await supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('numero', deliveryId)
+  return { count, error }
 }
 
 export const updateAddress = async (delivery: any) => {

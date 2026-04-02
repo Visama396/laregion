@@ -42,12 +42,27 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
     if (resetNumero) {
       setForm({...form, numero: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
     } else {
-      setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+      setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1, orden: form.orden + 1})
     }
   }
 
   useEffect(() => {
-    setCanEdit(form.numero > 0)
+    const updateOrden = async () => {
+      const { count, error } = await getDeliveryCount(form.numero)
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      if (count) {
+        setForm(prev => ({ ...prev, orden: count + 1 }))
+        setCanEdit(form.numero > 0)
+      }
+    }
+
+    if (form.numero > 0) {
+      updateOrden()
+    }
   }, [form.numero])
 
   if (selectableDeliveries.length === 0) {
@@ -115,5 +130,4 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
       <Button variant="default" onClick={() => {resetForm(true); setShowForm(true)}}>{translate("addaddress", language)}</Button>
     )
   }
-
 }
