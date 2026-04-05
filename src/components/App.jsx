@@ -5,6 +5,7 @@ import { translate } from "@/utils/translate"
 
 import UserForm from "@/components/UserForm"
 import AddDeliveryForm from "@/components/AddDeliveryForm"
+import EditDeliveryForm from "@/components/EditDeliveryForm"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { MoreHorizontalIcon } from "lucide-react"
 
 export default function App() {
+  const [showEditForm, setShowEditForm] = useState(false)
 	const [profile, setProfile] = useState(null)
 	const [selectableDeliveries, setSelectableDeliveries] = useState([])
   const [selectedDelivery, setSelectedDelivery] = useState(0)
@@ -92,8 +94,13 @@ export default function App() {
     })
   }
 
+  const editAddress = (delivery) => {
+
+  }
+
 	return (
-		<div className="flex flex-col">
+    <div className="flex flex-col">
+      <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={null} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
 			<div className="flex p-4 justify-between">
         <div className="flex items-center gap-2">
           <UserForm profile={profile} setProfile={setProfile} language={language} />
