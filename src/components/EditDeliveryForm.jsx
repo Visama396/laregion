@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 import { translate } from "@/utils/translate"
 
-export default function EditDeliveryForm({ showEditForm, setShowEditForm, delivery, language, selectableDeliveries, onEdit }) {
+export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, language, selectableDeliveries, onEdit }) {
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
   const [form, setForm] = useState({
     direccion: "",
@@ -24,7 +24,7 @@ export default function EditDeliveryForm({ showEditForm, setShowEditForm, delive
     baja: false,
     revista: false
   })
-  const [canEdit, setCanEdit] = useState(false)
+  const [canEdit, setCanEdit] = useState(showForm)
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -45,29 +45,17 @@ export default function EditDeliveryForm({ showEditForm, setShowEditForm, delive
   }
 
   useEffect(() => {
-    const updateOrden = async () => {
-      const { count, error } = await getDeliveryCount(form.numero)
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      if (count) {
-        setForm(prev => ({ ...prev, orden: count + 1 }))
-        setCanEdit(form.numero > 0)
-      }
+    if (delivery) {
+      setForm(delivery)
+      setCanEdit(true)
     }
-
-    if (form.numero > 0) {
-      updateOrden()
-    }
-  }, [form.numero])
+  }, [delivery])
 
   if (selectableDeliveries.length === 0) {
     return null
   }
 
-  if (showEditForm) {
+  if (showForm) {
     return (
       <div className='fixed flex inset-0 justify-center items-center bg-black/95'>
         <div className="bg-white p-4">
@@ -116,7 +104,7 @@ export default function EditDeliveryForm({ showEditForm, setShowEditForm, delive
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <Button disabled={!canEdit} onClick={handleSubmit}>{translate('add', language)}</Button>
+              <Button disabled={!canEdit} onClick={handleSubmit}>{translate('edit', language)}</Button>
               <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => {resetForm(true); setShowEditForm(false)}}>{translate('close', language)}</Button>
             </div>
           </div>

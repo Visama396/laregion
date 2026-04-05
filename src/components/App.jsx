@@ -15,6 +15,7 @@ import { MoreHorizontalIcon } from "lucide-react"
 
 export default function App() {
   const [showEditForm, setShowEditForm] = useState(false)
+  const [editingDelivery, setEditingDelivery] = useState(null)
 	const [profile, setProfile] = useState(null)
 	const [selectableDeliveries, setSelectableDeliveries] = useState([])
   const [selectedDelivery, setSelectedDelivery] = useState(0)
@@ -65,7 +66,8 @@ export default function App() {
   }
 
   const editRow = (delivery) => {
-
+    setEditingDelivery(delivery)
+    setShowEditForm(true)
   }
 
   const subscribe = (delivery) => {
@@ -94,13 +96,26 @@ export default function App() {
     })
   }
 
-  const editAddress = (delivery) => {
+  const editAddress = (updatedDelivery) => {
+    updateAddress(updatedDelivery).then(({ data, error }) => {
+      if (error) {
+        console.error(error)
+        return
+      }
 
+      if (data && data.length > 0) {
+        const updated = data[0]
+        setDeliveryData((prev) => prev.map((d) => d.id === updated.id ? updated : d))
+      }
+    })
+
+    setShowEditForm(false)
+    setEditingDelivery(null)
   }
 
 	return (
     <div className="flex flex-col">
-      <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={null} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
+      <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={editingDelivery} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
 			<div className="flex p-4 justify-between">
         <div className="flex items-center gap-2">
           <UserForm profile={profile} setProfile={setProfile} language={language} />
@@ -142,7 +157,7 @@ export default function App() {
           </Select>
         )}
 
-        <div className="flex md:hidden gap-2 mb-4">
+        <div className="flex md:hidden gap-2 my-4">
           {days.map((d) => (
             <Button
               key={d}
