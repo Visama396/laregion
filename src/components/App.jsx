@@ -213,13 +213,9 @@ export default function App() {
             <thead>
               <tr>
                 <th className="p-2 text-left">{translate("address", language)}</th>
-                <th className="p-2 text-left">{translate("monday", language)}</th>
-                <th className="p-2 text-left">{translate("tuesday", language)}</th>
-                <th className="p-2 text-left">{translate("wednesday", language)}</th>
-                <th className="p-2 text-left">{translate("thursday", language)}</th>
-                <th className="p-2 text-left">{translate("friday", language)}</th>
-                <th className="p-2 text-left">{translate("saturday", language)}</th>
-                <th className="p-2 text-left">{translate("sunday", language)}</th>
+                {days.map((day) => {
+                  return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold' : ''}`}>{translate(day, language)}</th>
+                })}
                 <th className="p-2 text-left">{translate("status", language)}</th>
                 {profile && profile.canEdit && <th className="p-2 text-right">{translate("actions", language)}</th>}
               </tr>
@@ -231,13 +227,11 @@ export default function App() {
                     <p>{delivery.direccion}</p>
                     {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
                   </td>
-                  <td className="p-2">{delivery.lunes}</td>
-                  <td className="p-2">{delivery.martes}</td>
-                  <td className="p-2">{delivery.miercoles}</td>
-                  <td className="p-2">{delivery.jueves}</td>
-                  <td className="p-2">{delivery.viernes}</td>
-                  <td className="p-2">{delivery.sabado}</td>
-                  <td className="p-2">{delivery.domingo}</td>
+                  {
+                    days.map((day) => {
+                      return <td key={day} className={`p-2 ${selectedDay === day ? 'bg-blue-50 font-semibold' : ''}`}>{delivery[dayMap[day]]}</td>
+                    })
+                  }
                   <td className="p-2 flex gap-2">
                     {delivery.baja && <span>🔴</span>}
                     {delivery.revista && <span>🟡</span>}
