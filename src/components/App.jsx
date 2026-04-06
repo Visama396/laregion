@@ -214,45 +214,49 @@ export default function App() {
               <tr>
                 <th className="p-2 text-left">{translate("address", language)}</th>
                 {days.map((day) => {
-                  return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold' : ''}`}>{translate(day, language)}</th>
+                  return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold rounded-t-md' : ''}`}>{translate(day, language)}</th>
                 })}
                 <th className="p-2 text-left">{translate("status", language)}</th>
                 {profile && profile.canEdit && <th className="p-2 text-right">{translate("actions", language)}</th>}
               </tr>
             </thead>
             <tbody>
-              {deliveryData.map((delivery) => (
-                <tr key={delivery.id}>
-                  <td className="p-2">
-                    <p>{delivery.direccion}</p>
-                    {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
-                  </td>
-                  {
-                    days.map((day) => {
-                      return <td key={day} className={`p-2 ${selectedDay === day ? 'bg-blue-50 font-semibold' : ''}`}>{delivery[dayMap[day]]}</td>
-                    })
-                  }
-                  <td className="p-2 flex gap-2">
-                    {delivery.baja && <span>🔴</span>}
-                    {delivery.revista && <span>🟡</span>}
-                  </td>
-                  {profile && profile.canEdit && <td className="p-2 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => editRow(delivery)}>Edit</DropdownMenuItem>
-                        {delivery.baja === true && <DropdownMenuItem onClick={() => subscribe(delivery)}>Dar de alta</DropdownMenuItem>}
-                        {delivery.baja === false && <DropdownMenuItem onClick={() => unsubscribe(delivery)}>Dar de baja</DropdownMenuItem>}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>}
-                </tr>
-              ))}
+              {deliveryData.map((delivery, index) => {
+                const isLastRow = index === deliveryData.length - 1
+                return (
+                  <tr key={delivery.id}>
+                    <td className="p-2">
+                      <p>{delivery.direccion}</p>
+                      {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
+                    </td>
+                    {
+                      days.map((day) => {
+                        const isSelected = selectedDay === day
+                        return <td key={day} className={`p-2 ${isSelected ? 'bg-blue-50 font-semibold' : ''} ${isLastRow && isSelected ? 'rounded-b-md' : ''}`}>{delivery[dayMap[day]]}</td>
+                      })
+                    }
+                    <td className="p-2 flex gap-2">
+                      {delivery.baja && <span>🔴</span>}
+                      {delivery.revista && <span>🟡</span>}
+                    </td>
+                    {profile && profile.canEdit && <td className="p-2 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="size-8">
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => editRow(delivery)}>Edit</DropdownMenuItem>
+                          {delivery.baja === true && <DropdownMenuItem onClick={() => subscribe(delivery)}>Dar de alta</DropdownMenuItem>}
+                          {delivery.baja === false && <DropdownMenuItem onClick={() => unsubscribe(delivery)}>Dar de baja</DropdownMenuItem>}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>)}
 
