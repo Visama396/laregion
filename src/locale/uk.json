@@ -34,5 +34,7 @@
   "newspaper": "Газета",
   "newspapers": "Газети",
   "loggedIn": "Ви увійшли як ",
-  "actions": "Дії"
+  "actions": "Дії",
+  "subscribe": "Підписатися",
+  "unsubscribe": "Скасувати підписку"
 }

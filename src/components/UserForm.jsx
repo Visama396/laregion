@@ -26,26 +26,25 @@ export default function UserForm({ profile, setProfile, language }) {
 
     if (errorUsername.length > 0 || errorPassword.length > 0) {
       setIsLoging(false)
-      return
+    } else {
+      const user = await getUser(name, password)
+
+  		if (user) {
+  			const { data, error } = await getProfile(user.id)
+
+  			if (error) {
+          console.error(error)
+          setIsLoging(false)
+  				return
+  			}
+  			if (data) {
+  				setUserProfile(data)
+          setProfile(data)
+          setShowForm(false)
+  				setIsLoging(false)
+  			}
+  		}
     }
-
-		const user = await getUser(name, password)
-
-		if (user) {
-			const { data, error } = await getProfile(user.id)
-
-			if (error) {
-        console.error(error)
-        setIsLoging(false)
-				return
-			}
-			if (data) {
-				setUserProfile(data)
-        setProfile(data)
-        setShowForm(false)
-				setIsLoging(false)
-			}
-		}
   }
 
   useEffect(() => {

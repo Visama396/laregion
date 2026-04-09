@@ -177,7 +177,7 @@ export default function App() {
 
         <div className="grid gap-3 md:hidden">
           {deliveryData.map((r, i) => (r[dayMap[selectedDay]] > 0 &&
-            <Card key={i} className={`rounded-2xl shadow ${r.baja ? "bg-red-100" : "bg-white"}`}>
+            <Card key={i} className={`rounded-2xl shadow-md ${r.baja ? "bg-red-100" : "bg-white"}`}>
               <CardContent className="p-4">
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold">
@@ -185,10 +185,10 @@ export default function App() {
                   </div>
                   <div className="flex gap-2">
                     {r.baja && (
-                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">{translate('leave', language).toUpperCase()}</span>
+                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded font-bold">{translate('leave', language).toUpperCase()}</span>
                     )}
-                    {r.revista && (
-                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded">{translate('magazine', language)}</span>
+                    {selectedDay === 'sunday' && r.revista && (
+                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded font-bold">{translate('magazine', language).toUpperCase()}</span>
                     )}
                   </div>
                 </div>
@@ -211,14 +211,15 @@ export default function App() {
         </div>
 
         <div className="hidden md:block">
-          {deliveryData.length > 0 && (<table className="w-full border-collapse">
+          {deliveryData.length > 0 && (<table className="w-auto border-collapse mx-auto">
             <thead>
               <tr>
                 <th className="p-2 text-left">{translate("address", language)}</th>
                 {days.map((day) => {
                   return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold rounded-t-md' : ''}`}>{translate(day, language)}</th>
                 })}
-                <th className="p-2 text-left">{translate("status", language)}</th>
+                <th className="p-2 text-left">Voz de Galicia</th>
+                <th className="p-2 text-left">Atlántico</th>
                 {profile && profile.canEdit && <th className="p-2 text-right">{translate("actions", language)}</th>}
               </tr>
             </thead>
@@ -226,7 +227,7 @@ export default function App() {
               {deliveryData.map((delivery, index) => {
                 const isLastRow = index === deliveryData.length - 1
                 return (
-                  <tr key={delivery.id}>
+                  <tr key={delivery.id} className={`${delivery.baja ? 'bg-red-100 rounded-md': ''}`}>
                     <td className="p-2">
                       <p>{delivery.direccion}</p>
                       {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
@@ -234,13 +235,11 @@ export default function App() {
                     {
                       days.map((day) => {
                         const isSelected = selectedDay === day
-                        return <td key={day} className={`p-2 ${isSelected ? 'bg-blue-50 font-semibold' : ''} ${isLastRow && isSelected ? 'rounded-b-md' : ''}`}>{delivery[dayMap[day]]}</td>
+                        return <td key={day} className={`p-2 ${delivery.baja ? 'bg-red-100' : day === 'sunday' && isSelected && delivery.revista ? 'bg-yellow-200' : day === 'sunday' && delivery.revista ? 'bg-yellow-200 rounded-md' : isSelected ? 'bg-blue-50':'' } ${isLastRow && isSelected ? 'rounded-b-md' : ''}`}>{delivery[dayMap[day]]}</td>
                       })
                     }
-                    <td className="p-2 flex gap-2">
-                      {delivery.baja && <span>🔴</span>}
-                      {delivery.revista && <span>🟡</span>}
-                    </td>
+                    <td className="p-2">{delivery.voz_de_galicia}</td>
+                    <td className="p-2">{delivery.atlantico}</td>
                     {profile && profile.canEdit && <td className="p-2 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -250,9 +249,9 @@ export default function App() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => editRow(delivery)}>Edit</DropdownMenuItem>
-                          {delivery.baja === true && <DropdownMenuItem onClick={() => subscribe(delivery)}>Dar de alta</DropdownMenuItem>}
-                          {delivery.baja === false && <DropdownMenuItem onClick={() => unsubscribe(delivery)}>Dar de baja</DropdownMenuItem>}
+                          <DropdownMenuItem onClick={() => editRow(delivery)}>{translate("edit", language)}</DropdownMenuItem>
+                          {delivery.baja === true && <DropdownMenuItem onClick={() => subscribe(delivery)}>{translate("subscribe", language)}</DropdownMenuItem>}
+                          {delivery.baja === false && <DropdownMenuItem onClick={() => unsubscribe(delivery)}>{translate("unsubscribe", language)}</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>}
@@ -260,8 +259,8 @@ export default function App() {
                 )
               })}
             </tbody>
-          </table>)}
-
+          </table>)
+          }
         </div>
       </div>
 		</div>

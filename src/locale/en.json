@@ -34,5 +34,7 @@
   "newspaper": "Newspaper",
   "newspapers": "Newspapers",
   "loggedIn": "Logged in as ",
-  "actions": "Actions"
+  "actions": "Actions",
+  "subscribe": "Subscribe",
+  "unsubscribe": "Unsubscribe"
 }

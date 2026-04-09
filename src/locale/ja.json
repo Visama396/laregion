@@ -34,5 +34,7 @@
   "newspaper": "新聞",
   "newspapers": "新聞",
   "loggedIn": "ログイン中: ",
-  "actions": "アクション"
+  "actions": "アクション",
+  "subscribe": "購読する",
+  "unsubscribe": "購読をやめる"
 }

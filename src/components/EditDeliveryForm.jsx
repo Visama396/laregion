@@ -22,7 +22,10 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
     sabado: 1,
     domingo: 1,
     baja: false,
-    revista: false
+    revista: false,
+    voz_de_galicia: 0,
+    atlantico: 0,
+    dia_festivo: "normal"
   })
   const [canEdit, setCanEdit] = useState(showForm)
 
@@ -33,15 +36,6 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
   const handleSubmit = (e) => {
     e.preventDefault()
     onEdit(form)
-    resetForm()
-  }
-
-  const resetForm = (resetNumero = false) => {
-    if (resetNumero) {
-      setForm({...form, numero: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
-    } else {
-      setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1, orden: form.orden + 1})
-    }
   }
 
   useEffect(() => {
@@ -105,7 +99,7 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
             </div>
             <div className="flex flex-col gap-2">
               <Button disabled={!canEdit} onClick={handleSubmit}>{translate('edit', language)}</Button>
-              <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => {resetForm(true); setShowEditForm(false)}}>{translate('close', language)}</Button>
+              <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => {setShowEditForm(false)}}>{translate('close', language)}</Button>
             </div>
           </div>
         </div>

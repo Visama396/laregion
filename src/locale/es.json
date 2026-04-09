@@ -34,5 +34,7 @@
   "newspaper": "Periódico",
   "newspapers": "Periódicos",
   "loggedIn": "Iniciado como ",
-  "actions": "Acciones"
+  "actions": "Acciones",
+  "subscribe": "Dar de alta",
+  "unsubscribe": "Dar de baja"
 }

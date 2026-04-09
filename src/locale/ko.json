@@ -34,5 +34,7 @@
   "newspaper": "신문",
   "newspapers": "신문",
   "loggedIn": "로그인 계정: ",
-  "actions": "액션"
+  "actions": "액션",
+  "subscribe": "구독하기",
+  "unsubscribe": "구독 취소"
 }

@@ -9,7 +9,7 @@ import { getDeliveryCount } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
 export default function AddDeliveryForm({ language, selectableDeliveries, onAdd }) {
-  const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
+  const dayMap = {lunes: "monday", martes: "tuesday", miercoles: "wednesday", jueves: "thursday", viernes: "friday", sabado: "saturday", domingo: "sunday"}
   const [form, setForm] = useState({
     direccion: "",
     extra: "",
@@ -23,8 +23,12 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
     sabado: 1,
     domingo: 1,
     baja: false,
-    revista: false
+    revista: false,
+    voz_de_galicia: 0,
+    atlantico: 0,
+    dia_festivo: "normal"
   })
+
   const [showForm, setShowForm] = useState(false)
   const [canEdit, setCanEdit] = useState(false)
 
@@ -112,10 +116,18 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
             <div className="grid grid-cols-3 gap-2">
               {["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map((day) => (
                 <div key={day}>
-                  <label htmlFor={day}>{day}</label>
+                  <label htmlFor={day}>{translate(dayMap[day], language)}</label>
                   <Input disabled={!canEdit} id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
                 </div>
               ))}
+              <div>
+                <label htmlFor="">Voz de Galicia</label>
+                <Input disabled={!canEdit} id="voz_de_galicia" type="number" placeholder={form.voz_de_galicia} value={form.voz_de_galicia} onChange={(e) => handleChange("voz_de_galicia", e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="">Atlántico</label>
+                <Input disabled={!canEdit} id="atlantico" type="number" placeholder={form.atlantico} value={form.atlantico} onChange={(e) => handleChange("atlantico", e.target.value)} />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <Button disabled={!canEdit} onClick={handleSubmit}>{translate('add', language)}</Button>

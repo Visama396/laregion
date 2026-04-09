@@ -34,5 +34,7 @@
   "newspaper": "Zeitung",
   "newspapers": "Zeitungen",
   "loggedIn": "Angemeldet als ",
-  "actions": "Aktionen"
+  "actions": "Aktionen",
+  "subscribe": "Abonnieren",
+  "unsubscribe": "Abbestellen"
 }
