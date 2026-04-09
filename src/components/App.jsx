@@ -21,7 +21,6 @@ export default function App() {
   const [selectedDelivery, setSelectedDelivery] = useState(0)
   const [deliveryData, setDeliveryData] = useState([])
   const [language, setLanguage] = useState('es')
-  //const [selectedDay, setSelectedDay] = useState(new Date().toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'Europe/Madrid' }).toLowerCase())
   const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
   const [selectedDay, setSelectedDay] = useState(() => {
@@ -212,7 +211,7 @@ export default function App() {
 
         <div className="hidden md:block">
           {deliveryData.length > 0 && (<table className="w-auto border-collapse mx-auto">
-            <thead>
+            <thead className="sticky top-0 bg-white">
               <tr>
                 <th className="p-2 text-left">{translate("address", language)}</th>
                 {days.map((day) => {
