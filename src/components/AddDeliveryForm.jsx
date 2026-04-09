@@ -56,7 +56,7 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
 
       if (count) {
         setForm(prev => ({ ...prev, orden: count + 1 }))
-        setCanEdit(form.numero > 0)
+        setCanEdit(true)
       }
     }
 
