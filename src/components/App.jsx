@@ -153,20 +153,26 @@ export default function App() {
       </div>
       <div className="p-4">
         {selectableDeliveries.length > 0 && (
-          <Select defaultValue="" onValueChange={(value) => setSelectedDelivery(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder={translate("selectdelivery", language)} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {selectableDeliveries.map((delivery) => (
-                  <SelectItem key={delivery} value={delivery}>
-                    {translate("delivery", language)} {delivery}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-4">
+            <Select defaultValue="" onValueChange={(value) => setSelectedDelivery(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder={translate("selectdelivery", language)} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {selectableDeliveries.map((delivery) => (
+                    <SelectItem key={delivery} value={delivery}>
+                      {translate("delivery", language)} {delivery}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {deliveryData.length > 0 && (
+              <p className="text-sm font-semibold">📰 {deliveryData.filter(r => !r.baja).reduce((acc, r) => acc + (r[dayMap[selectedDay]] || 0), 0)} {translate('newspapers', language)}</p>
+            )}
+          </div>
+
         )}
 
         <div className="flex md:hidden gap-2 my-4">
