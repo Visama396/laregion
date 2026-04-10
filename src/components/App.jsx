@@ -23,16 +23,13 @@ export default function App() {
   const [language, setLanguage] = useState('es')
   const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
-  const [selectedDay, setSelectedDay] = useState(() => {
-    const today = new Date()
-    const dayIndex = new Intl.DateTimeFormat('en-US', {
-      weekday: 'long',
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    }).format(today).toLowerCase()
+  const [selectedDay, setSelectedDay] = useState(days[0])
 
-    const map = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 }
-    return days[map[dayIndex]]
-  })
+  useEffect(() => {
+    const today = new Date()
+    const dayIndex = (today.getDay() + 6) % 7
+    setSelectedDay(days[dayIndex])
+  }, [])
 
 	useEffect(() => {
     if (profile) {
