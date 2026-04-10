@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-import { getDelivery, insertAddress, updateAddress } from "@/utils/supabase"
+import { getDelivery, getHolidays, insertAddress, updateAddress } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
 import UserForm from "@/components/UserForm"
@@ -24,11 +24,16 @@ export default function App() {
   const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
   const [selectedDay, setSelectedDay] = useState(days[0])
+  const [holidays, setHolidays] = useState([])
 
   useEffect(() => {
     const today = new Date()
     const dayIndex = (today.getDay() + 6) % 7
     setSelectedDay(days[dayIndex])
+
+    getHolidays().then(({ data }) => {
+      if (data) setHolidays(data.map(h => h.fecha))
+    })
   }, [])
 
 	useEffect(() => {
@@ -51,6 +56,25 @@ export default function App() {
       })
     }
   }, [selectedDelivery])
+
+  const isHoliday = (day) => {
+    const today = new Date()
+    const dayIndex = days.indexOf(day)
+    const currentDayIndex = (today.getDay() + 6) % 7
+    const diff = dayIndex - currentDayIndex
+    const targetDate = new Date(today)
+    targetDate.setDate(today.getDate() + diff)
+    const formatted = targetDate.toISOString().split('T')[0]
+    return holidays.includes(formatted)
+  }
+
+  const shouldDeliver = (r, day) => {
+    if (r.baja) return false
+    const festivo = isHoliday(day)
+    if (festivo && r.dia_festivo === 'entregar') return true
+    if (festivo && r.dia_festivo === 'no_entregar') return false
+    return r[dayMap[day]] > 0
+  }
 
   const handleAddDelivery = (formData) => {
     if (formData.direccion.length == 0 || formData.numero == 0) {
@@ -169,7 +193,9 @@ export default function App() {
               </SelectContent>
             </Select>
             {deliveryData.length > 0 && (
-              <p className="text-sm font-semibold">📰 {deliveryData.filter(r => !r.baja).reduce((acc, r) => acc + (r[dayMap[selectedDay]] || 0), 0)} {translate('newspapers', language)}</p>
+              <p className="text-sm font-semibold">
+                📰 {deliveryData.filter(r => shouldDeliver(r, selectedDay)).reduce((acc, r) => acc + (r[dayMap[selectedDay]] || 0), 0)} {translate('newspapers', language)}
+              </p>
             )}
           </div>
 
@@ -189,12 +215,12 @@ export default function App() {
         </div>
 
         <div className="grid gap-3 md:hidden">
-          {deliveryData.map((r, i) => (r[dayMap[selectedDay]] > 0 &&
-            <Card key={i} className={`rounded-2xl shadow-md ${r.baja ? "bg-red-100" : "bg-white"}`}>
+          {deliveryData.map((r) => (shouldDeliver(r, selectedDay) &&
+            <Card key={r.id} className={`rounded-2xl shadow-sm ${r.baja ? "bg-red-100" : "bg-white"} hover:shadow-md transition-shadow`}>
               <CardContent className="p-4">
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold">
-                    {translate('delivery', language)} {r.numero}
+                    {translate('delivery', language)} {r.numero} · {profile && profile.canEdit && (<span>{translate('order', language)} {r.orden}</span>)}
                   </div>
                   <div className="flex gap-2">
                     {r.baja && (
@@ -203,18 +229,21 @@ export default function App() {
                     {selectedDay === 'sunday' && r.revista && (
                       <span className="text-xs bg-yellow-400 px-2 py-1 rounded font-bold">{translate('magazine', language).toUpperCase()}</span>
                     )}
+                    {isHoliday(selectedDay) && r.dia_festivo === 'entregar' && (
+                      <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded font-bold">{translate('holiday', language).toUpperCase()}</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="font-medium text-lg mb-1">
+                <div className="font-bold text-xl mb-1">
                   {r.direccion}
                 </div>
 
-                <div className="text-xl font-bold mb-2">
-                  📰 {r[dayMap[selectedDay]]} {translate(r[dayMap[selectedDay]] < 2 ? 'newspaper' : 'newspapers', language)}
+                <div className="text-lg font-medium mb-2">
+                  📰 {isHoliday(selectedDay) && r.dia_festivo === 'entregar' ? r.festivo : r[dayMap[selectedDay]]} {translate(r[dayMap[selectedDay]] < 2 ? 'newspaper' : 'newspapers', language)}
                 </div>
                 {r.extra && (
-                  <div className="text-sm text-gray-600">
+                  <div className="text-gray-800 font-semibold">
                     📝 {r.extra}
                   </div>
                 )}
@@ -227,7 +256,7 @@ export default function App() {
           {deliveryData.length > 0 && (<table className="w-auto border-collapse mx-auto">
             <thead className="sticky top-0 bg-white">
               <tr>
-                {profile && profile.canEdit && <th className="p-2 text-left">Orden</th>}
+                {profile && profile.canEdit && <th className="p-2 text-left">{translate('order', language)}</th>}
                 <th className="p-2 text-left">{translate("address", language)}</th>
                 {days.map((day) => {
                   return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold rounded-t-md' : ''}`}>{translate(day, language)}</th>
@@ -250,7 +279,15 @@ export default function App() {
                     {
                       days.map((day) => {
                         const isSelected = selectedDay === day
-                        return <td key={day} className={`p-2 ${delivery.baja ? 'bg-red-100' : day === 'sunday' && isSelected && delivery.revista ? 'bg-yellow-200' : day === 'sunday' && delivery.revista ? 'bg-yellow-200 rounded-md' : isSelected ? 'bg-blue-50':'' } ${isLastRow && isSelected ? 'rounded-b-md' : ''}`}>{delivery[dayMap[day]]}</td>
+                        const isFestivo = isHoliday(day) && delivery.dia_festivo === 'entregar'
+                        return <td key={day} className={`p-2
+                              ${delivery.baja ? 'bg-red-100' :
+                                isFestivo ? 'bg-purple-100' :
+                                day === 'sunday' && delivery.revista ? 'bg-yellow-200' :
+                                isSelected ? 'bg-blue-50' : ''}
+                              ${isLastRow && isSelected ? 'rounded-b-md' : ''}`}>
+                              {delivery[dayMap[day]] === 0 && isFestivo ? delivery.festivo : delivery[dayMap[day]]}
+                            </td>
                       })
                     }
                     <td className="p-2">{delivery.voz_de_galicia}</td>

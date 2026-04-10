@@ -67,3 +67,8 @@ export const updateAddress = async (address: any) => {
   const { data, error } = await supabase.from('deliveries').update(address).eq('id', address.id).select()
   return { data, error }
 }
+
+export const getHolidays = async () => {
+  const { data, error } = await supabase.from('holidays').select()
+  return { data, error }
+}

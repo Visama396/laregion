@@ -26,7 +26,8 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
     revista: false,
     voz_de_galicia: 0,
     atlantico: 0,
-    dia_festivo: "normal"
+    dia_festivo: "normal",
+    festivo: 1
   })
 
   const [showForm, setShowForm] = useState(false)

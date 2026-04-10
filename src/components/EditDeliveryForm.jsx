@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { translate } from "@/utils/translate"
 
 export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, language, selectableDeliveries, onEdit }) {
-  const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
+  const dayMap = {lunes: "monday", martes: "tuesday", miercoles: "wednesday", jueves: "thursday", viernes: "friday", sabado: "saturday", domingo: "sunday"}
   const [form, setForm] = useState({
     direccion: "",
     extra: "",
@@ -25,7 +25,8 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
     revista: false,
     voz_de_galicia: 0,
     atlantico: 0,
-    dia_festivo: "normal"
+    dia_festivo: "normal",
+    festivo: 1
   })
   const [canEdit, setCanEdit] = useState(showForm)
 
@@ -92,7 +93,7 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
             <div className="grid grid-cols-3 gap-2">
               {["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map((day) => (
                 <div key={day}>
-                  <label htmlFor={day}>{day}</label>
+                  <label htmlFor={day}>{translate(dayMap[day], language)}</label>
                   <Input disabled={!canEdit} id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
                 </div>
               ))}

@@ -36,5 +36,6 @@
   "loggedIn": "Iniciado como ",
   "actions": "Acciones",
   "subscribe": "Dar de alta",
-  "unsubscribe": "Dar de baja"
+  "unsubscribe": "Dar de baja",
+  "holiday": "Festivo"
 }
