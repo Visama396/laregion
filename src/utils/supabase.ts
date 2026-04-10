@@ -35,7 +35,13 @@ export const getDelivery = async (deliveryId: number) => {
   return { data, error }
 }
 
-export const insertAddress = async (address: object) => {
+export const insertAddress = async (address: any) => {
+  const { error: shiftError } = await supabase.rpc('shift_orden', {
+    p_numero: address.numero,
+    p_desde: address.orden
+  })
+  if (shiftError) return { data: null, error: shiftError }
+
   const { data, error } = await supabase.from('deliveries').insert(address).select()
   return { data, error }
 }
@@ -45,7 +51,19 @@ export const getDeliveryCount = async (deliveryId: number) => {
   return { count, error }
 }
 
-export const updateAddress = async (delivery: any) => {
-  const { data, error } = await supabase.from('deliveries').update(delivery).eq('id', delivery.id).select()
+export const updateAddress = async (address: any) => {
+  const { data: original, error: fetchError } = await supabase.from('deliveries').select('orden, numero').eq('id', address.id).single()
+  if (fetchError) return { data: null, error: fetchError }
+
+  if (original.orden !== address.orden) {
+    await supabase.rpc('reorder_delivery', {
+      p_id: address.id,
+      p_numero: address.numero,
+      p_orden_viejo: original.orden,
+      p_orden_nuevo: address.orden
+    })
+  }
+
+  const { data, error } = await supabase.from('deliveries').update(address).eq('id', address.id).select()
   return { data, error }
 }

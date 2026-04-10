@@ -25,8 +25,13 @@ export default function App() {
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
   const [selectedDay, setSelectedDay] = useState(() => {
     const today = new Date()
-    const dayIndex = (today.getDay() + 6) % 7
-    return days[dayIndex]
+    const dayIndex = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    }).format(today).toLowerCase()
+
+    const map = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 }
+    return days[map[dayIndex]]
   })
 
 	useEffect(() => {
@@ -108,8 +113,14 @@ export default function App() {
       }
 
       if (data && data.length > 0) {
-        const updated = data[0]
-        setDeliveryData((prev) => prev.map((d) => d.id === updated.id ? updated : d))
+        if (updatedDelivery.orden !== data[0].orden) {
+          getDelivery(selectedDelivery).then(({ data }) => {
+            if (data) setDeliveryData(data)
+          })
+        } else {
+          const updated = data[0]
+          setDeliveryData((prev) => prev.map((d) => d.id === updated.id ? updated : d))
+        }
       }
     })
 
@@ -213,6 +224,7 @@ export default function App() {
           {deliveryData.length > 0 && (<table className="w-auto border-collapse mx-auto">
             <thead className="sticky top-0 bg-white">
               <tr>
+                {profile && profile.canEdit && <th className="p-2 text-left">Orden</th>}
                 <th className="p-2 text-left">{translate("address", language)}</th>
                 {days.map((day) => {
                   return <th key={day} className={`p-2 text-left ${selectedDay === day ? 'bg-blue-100 font-bold rounded-t-md' : ''}`}>{translate(day, language)}</th>
@@ -226,7 +238,8 @@ export default function App() {
               {deliveryData.map((delivery, index) => {
                 const isLastRow = index === deliveryData.length - 1
                 return (
-                  <tr key={delivery.id} className={`${delivery.baja ? 'bg-red-100 rounded-md': ''}`}>
+                  <tr key={delivery.id} className={`${delivery.baja ? 'bg-red-100 rounded-md' : ''}`}>
+                    {profile && profile.canEdit && <td className="p-2">{delivery.orden}</td>}
                     <td className="p-2">
                       <p>{delivery.direccion}</p>
                       {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
