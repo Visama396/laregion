@@ -52,7 +52,7 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
 
   if (showForm) {
     return (
-      <div className='fixed flex inset-0 justify-center items-center bg-black/95'>
+      <div className='fixed flex inset-0 justify-center items-center bg-black/95 z-10'>
         <div className="bg-white p-4">
           <h2 className="text-3xl font-semibold">{translate("addaddress", language)}</h2>
           <div className="flex flex-col mt-4 gap-4">
