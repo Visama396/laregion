@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { getDeliveryCount } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
-export default function AddDeliveryForm({ language, selectableDeliveries, onAdd }) {
+export default function AddDeliveryForm({ language, selectedDelivery, selectableDeliveries, onAdd }) {
   const dayMap = {lunes: "monday", martes: "tuesday", miercoles: "wednesday", jueves: "thursday", viernes: "friday", sabado: "saturday", domingo: "sunday"}
   const [form, setForm] = useState({
     direccion: "",
@@ -45,30 +45,36 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
 
   const resetForm = (resetNumero = false) => {
     if (resetNumero) {
-      setForm({...form, numero: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+      setForm({...form, numero: 0, orden: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
     } else {
       setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1, orden: form.orden + 1})
     }
   }
 
-  useEffect(() => {
-    const updateOrden = async () => {
-      const { count, error } = await getDeliveryCount(form.numero)
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      if (count != null || count != undefined) {
-        setForm(prev => ({ ...prev, orden: count + 1 }))
-        setCanEdit(true)
-      }
+  const updateOrden = async (numero) => {
+    const { count, error } = await getDeliveryCount(numero)
+    if (error) {
+      console.error(error)
+      return
     }
 
+    if (count != null || count != undefined) {
+      setForm(prev => ({ ...prev, orden: count + 1 }))
+      setCanEdit(true)
+    }
+  }
+
+  useEffect(() => {
     if (form.numero > 0) {
-      updateOrden()
+      updateOrden(form.numero)
     }
   }, [form.numero])
+
+  useEffect(() => {
+    if (selectedDelivery > 0 && showForm) {
+      setForm(prev => ({ ...prev, numero: selectedDelivery }))
+    }
+  }, [showForm])
 
   if (selectableDeliveries.length === 0) {
     return null
@@ -82,7 +88,7 @@ export default function AddDeliveryForm({ language, selectableDeliveries, onAdd 
           <div className="flex flex-col mt-4 gap-4">
             <div className="flex items-end gap-4">
               <div className="flex items-center gap-2">
-                <Select defaultValue="" onValueChange={(value) => handleChange("numero", value)}>
+                <Select defaultValue={selectedDelivery > 0 ? selectedDelivery: ''} onValueChange={(value) => handleChange("numero", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder={translate("selectdelivery", language)} />
                   </SelectTrigger>

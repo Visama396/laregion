@@ -155,7 +155,7 @@ export default function App() {
 			<div className="flex p-4 justify-between">
         <div className="flex items-center gap-2">
           <UserForm profile={profile} setProfile={setProfile} language={language} />
-          {profile && profile.canEdit && <AddDeliveryForm language={language} selectableDeliveries={selectableDeliveries} onAdd={handleAddDelivery} />}
+          {profile && profile.canEdit && <AddDeliveryForm language={language} selectedDelivery={selectedDelivery} selectableDeliveries={selectableDeliveries} onAdd={handleAddDelivery} />}
         </div>
         <div>
           <Select defaultValue={language} onValueChange={(value) => setLanguage(value)}>
