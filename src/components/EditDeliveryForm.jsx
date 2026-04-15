@@ -58,7 +58,7 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
           <div className="flex flex-col mt-4 gap-4">
             <div className="flex items-end gap-4">
               <div className="flex items-center gap-2">
-                <Select defaultValue="" onValueChange={(value) => handleChange("numero", value)}>
+                <Select defaultValue={delivery.numero} onValueChange={(value) => handleChange("numero", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder={translate("selectdelivery", language)} />
                   </SelectTrigger>
