@@ -120,6 +120,21 @@ export default function AddDeliveryForm({ language, selectedDelivery, selectable
               <Input disabled={!canEdit} placeholder={translate("address", language)} value={form.direccion} onChange={(e) => handleChange("direccion", e.target.value)} />
               <Input disabled={!canEdit} placeholder={translate("extra", language)} value={form.extra} onChange={(e) => handleChange("extra", e.target.value)} />
             </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="dia_festivo">{translate("holidayoption", language)}</label>
+              <Select disabled={!canEdit} value={form.dia_festivo} onValueChange={(value) => handleChange("dia_festivo", value)}>
+                <SelectTrigger id="dia_festivo">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="normal">{translate("festivo_normal", language)}</SelectItem>
+                    <SelectItem value="entregar">{translate("festivo_entregar", language)}</SelectItem>
+                    <SelectItem value="no_entregar">{translate("festivo_no_entregar", language)}</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-3 gap-2">
               {["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map((day) => (
                 <div key={day}>

@@ -37,5 +37,10 @@
   "actions": "Aktionen",
   "subscribe": "Abonnieren",
   "unsubscribe": "Abbestellen",
-  "holiday": "Feiertag"
+  "holiday": "Feiertag",
+  "holidayoption": "Feiertag",
+  "festivo_normal": "Normal",
+  "festivo_entregar": "Zustellen",
+  "festivo_no_entregar": "Nicht zustellen",
+  "showbajas": "Abgemeldete anzeigen"
 }

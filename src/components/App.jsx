@@ -25,6 +25,7 @@ export default function App() {
   const dayMap = {monday: "lunes", tuesday: "martes", wednesday: "miercoles", thursday: "jueves", friday: "viernes", saturday: "sabado", sunday: "domingo"}
   const [selectedDay, setSelectedDay] = useState(days[0])
   const [holidays, setHolidays] = useState([])
+  const [showBajas, setShowBajas] = useState(false)
 
   useEffect(() => {
     const today = new Date()
@@ -201,55 +202,117 @@ export default function App() {
 
         )}
 
-        <div className="flex md:hidden gap-2 my-4">
-          {days.map((d) => (
-            <Button
-              key={d}
-              variant={selectedDay === d ? "default" : "outline"}
-              onClick={() => setSelectedDay(d)}
-              className="capitalize"
-            >
-              {translate(d, language).slice(0,1)}
-            </Button>
-          ))}
+        <div className="flex gap-2 my-4 justify-between items-center">
+          <div className="flex gap-2">
+            {days.map((d) => (
+              <Button
+                key={d}
+                variant={selectedDay === d ? "default" : "outline"}
+                onClick={() => setSelectedDay(d)}
+                className="capitalize"
+              >
+                {translate(d, language).slice(0,1)}
+              </Button>
+            ))}
+          </div>
+          <div className="md:hidden">
+            {profile && profile.canEdit && (
+              <Button
+                variant={showBajas ? "default" : "outline"}
+                onClick={() => setShowBajas((prev) => !prev)}
+                className="text-xs"
+              >
+                {translate('showbajas', language)}
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-3 md:hidden">
-          {deliveryData.map((r) => (shouldDeliver(r, selectedDay) &&
-            <Card key={r.id} className={`rounded-2xl shadow-sm ${r.baja ? "bg-red-100" : "bg-white"} hover:shadow-md transition-shadow`}>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm font-semibold">
-                    {translate('delivery', language)} {r.numero} · {profile && profile.canEdit && (<span>{translate('order', language)} {r.orden}</span>)}
-                  </div>
-                  <div className="flex gap-2">
-                    {r.baja && (
-                      <span className="text-xs bg-red-500 text-white px-2 py-1 rounded font-bold">{translate('leave', language).toUpperCase()}</span>
-                    )}
-                    {selectedDay === 'sunday' && r.revista && (
-                      <span className="text-xs bg-yellow-400 px-2 py-1 rounded font-bold">{translate('magazine', language).toUpperCase()}</span>
-                    )}
-                    {isHoliday(selectedDay) && r.dia_festivo === 'entregar' && (
-                      <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded font-bold">{translate('holiday', language).toUpperCase()}</span>
-                    )}
-                  </div>
-                </div>
+          {deliveryData.map((r) => {
+            const laregionCount = isHoliday(selectedDay) && r.dia_festivo === 'entregar' ? r.festivo : r[dayMap[selectedDay]]
+            const hasLaregion = shouldDeliver(r, selectedDay)
+            const hasVoz = (r.voz_de_galicia || 0) > 0
+            const hasAtlantico = (r.atlantico || 0) > 0
+            const showCard = (r.baja && showBajas) || hasLaregion || hasVoz || hasAtlantico
 
-                <div className="font-bold text-xl mb-1">
-                  {r.direccion}
-                </div>
+            if (!showCard) return null
 
-                <div className="text-lg font-medium mb-2">
-                  📰 {isHoliday(selectedDay) && r.dia_festivo === 'entregar' ? r.festivo : r[dayMap[selectedDay]]} {translate(r[dayMap[selectedDay]] < 2 ? 'newspaper' : 'newspapers', language)}
-                </div>
-                {r.extra && (
-                  <div className="text-gray-800 font-semibold">
-                    📝 {r.extra}
+            let accentClass = "bg-white"
+            if (!hasLaregion) {
+              if (hasVoz && hasAtlantico) accentClass = "bg-gradient-to-br from-red-100 via-white to-blue-100 ring-1 ring-red-200"
+              else if (hasVoz) accentClass = "bg-gradient-to-br from-red-50 to-red-200 ring-1 ring-red-200"
+              else if (hasAtlantico) accentClass = "bg-gradient-to-br from-blue-50 to-blue-200 ring-1 ring-blue-200"
+            }
+
+            return (
+              <Card key={r.id} className={`rounded-2xl shadow-sm ${r.baja ? "bg-red-100" : accentClass} hover:shadow-md transition-shadow`}>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="text-sm font-semibold">
+                      {translate('delivery', language)} {r.numero} · {profile && profile.canEdit && (<span>{translate('order', language)} {r.orden}</span>)}
+                    </div>
+                    <div className="flex gap-2 flex-wrap justify-end">
+                      {r.baja && (
+                        <span className="text-xs bg-red-500 text-white px-2 py-1 rounded font-bold">{translate('leave', language).toUpperCase()}</span>
+                      )}
+                      {hasVoz && (
+                        <span className={`text-xs px-2 py-1 rounded font-bold ${hasLaregion ? 'bg-red-500 text-white' : 'bg-red-600 text-white'}`}>Voz de Galicia</span>
+                      )}
+                      {hasAtlantico && (
+                        <span className={`text-xs px-2 py-1 rounded font-bold ${hasLaregion ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>Atlántico</span>
+                      )}
+                      {selectedDay === 'sunday' && r.revista && (
+                        <span className="text-xs bg-yellow-400 px-2 py-1 rounded font-bold">{translate('magazine', language).toUpperCase()}</span>
+                      )}
+                      {isHoliday(selectedDay) && r.dia_festivo === 'entregar' && (
+                        <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded font-bold">{translate('holiday', language).toUpperCase()}</span>
+                      )}
+                      {profile && profile.canEdit && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8">
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => editRow(r)}>{translate("edit", language)}</DropdownMenuItem>
+                            {r.baja === true && <DropdownMenuItem onClick={() => subscribe(r)}>{translate("subscribe", language)}</DropdownMenuItem>}
+                            {r.baja === false && <DropdownMenuItem onClick={() => unsubscribe(r)}>{translate("unsubscribe", language)}</DropdownMenuItem>}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="font-bold text-xl mb-1">
+                    {r.direccion}
+                  </div>
+
+                  <div className="text-lg font-medium mb-2">
+                    {hasLaregion ? (
+                      <>📰 {laregionCount} {translate(laregionCount < 2 ? 'newspaper' : 'newspapers', language)}
+                        {hasVoz && <span className="text-red-600 font-bold"> · {r.voz_de_galicia} Voz de Galicia</span>}
+                        {hasAtlantico && <span className="text-blue-600 font-bold"> · {r.atlantico} Atlántico</span>}
+                      </>
+                    ) : (
+                      <>
+                        {hasVoz && <span className="text-red-600 font-bold">📰 {r.voz_de_galicia} Voz de Galicia</span>}
+                        {hasVoz && hasAtlantico && <span className="text-gray-400 font-bold"> · </span>}
+                        {hasAtlantico && <span className="text-blue-600 font-bold">📰 {r.atlantico} Atlántico</span>}
+                      </>
+                    )}
+                  </div>
+                  {r.extra && (
+                    <div className="text-gray-800 font-semibold">
+                      📝 {r.extra}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
 
         <div className="hidden md:block">

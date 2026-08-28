@@ -37,5 +37,10 @@
   "actions": "액션",
   "subscribe": "구독하기",
   "unsubscribe": "구독 취소",
-  "holiday": "휴일"
+  "holiday": "휴일",
+  "holidayoption": "휴일",
+  "festivo_normal": "일반",
+  "festivo_entregar": "배달하기",
+  "festivo_no_entregar": "배달 안 함",
+  "showbajas": "탈퇴 표시"
 }
