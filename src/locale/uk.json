@@ -42,5 +42,6 @@
   "festivo_normal": "Звичайний",
   "festivo_entregar": "Доставляти",
   "festivo_no_entregar": "Не доставляти",
-  "showbajas": "Показати скасовані"
+  "showbajas": "Показати скасовані",
+  "dragToReorder": "Тримайте та перетягуйте, щоб змінити порядок"
 }

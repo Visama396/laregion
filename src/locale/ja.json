@@ -42,5 +42,6 @@
   "festivo_normal": "通常",
   "festivo_entregar": "配達する",
   "festivo_no_entregar": "配達しない",
-  "showbajas": "退会済みを表示"
+  "showbajas": "退会済みを表示",
+  "dragToReorder": "長押ししてドラッグで並べ替え"
 }

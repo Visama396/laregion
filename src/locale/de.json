@@ -42,5 +42,6 @@
   "festivo_normal": "Normal",
   "festivo_entregar": "Zustellen",
   "festivo_no_entregar": "Nicht zustellen",
-  "showbajas": "Abgemeldete anzeigen"
+  "showbajas": "Abgemeldete anzeigen",
+  "dragToReorder": "Gedrückt halten und ziehen zum Sortieren"
 }

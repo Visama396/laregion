@@ -42,5 +42,6 @@
   "festivo_normal": "Normal",
   "festivo_entregar": "Entregar",
   "festivo_no_entregar": "No entregar",
-  "showbajas": "Mostrar bajas"
+  "showbajas": "Mostrar bajas",
+  "dragToReorder": "Mantén pulsado y arrastra para reordenar"
 }

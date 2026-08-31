@@ -42,5 +42,6 @@
   "festivo_normal": "Normal",
   "festivo_entregar": "Deliver",
   "festivo_no_entregar": "Do not deliver",
-  "showbajas": "Show on leave"
+  "showbajas": "Show on leave",
+  "dragToReorder": "Long press and drag to reorder"
 }

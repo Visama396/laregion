@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 import { getDelivery, getHolidays, insertAddress, updateAddress, reorderDelivery } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
@@ -28,6 +28,13 @@ export default function App() {
   const [showBajas, setShowBajas] = useState(false)
   const [draggingId, setDraggingId] = useState(null)
   const [dragOverId, setDragOverId] = useState(null)
+  const [touchDraggingId, setTouchDraggingId] = useState(null)
+  const [touchDragOverId, setTouchDragOverId] = useState(null)
+  const [touchOffsetY, setTouchOffsetY] = useState(0)
+  const longPressTimer = useRef(null)
+  const touchStart = useRef({ x: 0, y: 0 })
+  const mobileListRef = useRef(null)
+  const touchDragOverIdRef = useRef(null)
 
   useEffect(() => {
     const today = new Date()
@@ -199,6 +206,104 @@ export default function App() {
     setDragOverId(null)
   }
 
+  const handleTouchStart = (e, delivery) => {
+    if (!profile?.canEdit) return
+    if (e.target.closest('button, a, [role="button"]')) return
+
+    const touch = e.touches[0]
+    touchStart.current = { x: touch.clientX, y: touch.clientY }
+
+    clearTimeout(longPressTimer.current)
+    longPressTimer.current = setTimeout(() => beginTouchDrag(delivery), 500)
+  }
+
+  const handleTouchMove = (e) => {
+    if (!profile?.canEdit || touchDraggingId) return
+    const touch = e.touches[0]
+    const dx = touch.clientX - touchStart.current.x
+    const dy = touch.clientY - touchStart.current.y
+
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+      clearTimeout(longPressTimer.current)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    clearTimeout(longPressTimer.current)
+  }
+
+  const beginTouchDrag = (delivery) => {
+    setTouchDraggingId(delivery.id)
+    setTouchDragOverId(delivery.id)
+    setTouchOffsetY(0)
+    touchDragOverIdRef.current = delivery.id
+
+    const updateDrag = (e) => {
+      const touch = e.touches[0]
+      if (!touch) return
+      e.preventDefault()
+
+      const dy = touch.clientY - touchStart.current.y
+      setTouchOffsetY(dy)
+
+      let closestId = null
+      let closestDist = Infinity
+      mobileListRef.current?.querySelectorAll('[data-slot="card"]').forEach((el) => {
+        const id = Number(el.dataset.id)
+        if (!el.dataset.id || id === delivery.id) return
+        const rect = el.getBoundingClientRect()
+        const dist = Math.abs(touch.clientY - (rect.top + rect.height / 2))
+        if (dist < closestDist) {
+          closestDist = dist
+          closestId = id
+        }
+      })
+
+      if (closestId !== null && closestId !== touchDragOverIdRef.current) {
+        touchDragOverIdRef.current = closestId
+        setTouchDragOverId(closestId)
+      }
+    }
+
+    const commitDrag = (reorder) => {
+      document.removeEventListener('touchmove', updateDrag)
+      document.removeEventListener('touchend', handleEnd)
+      document.removeEventListener('touchcancel', handleCancel)
+
+      if (reorder) {
+        const fromIndex = deliveryData.findIndex((d) => d.id === delivery.id)
+        const toIndex = deliveryData.findIndex((d) => d.id === touchDragOverIdRef.current)
+
+        if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+          const moved = deliveryData[fromIndex]
+          const newOrden = deliveryData[toIndex].orden
+
+          reorderDelivery(moved.id, moved.numero, moved.orden, newOrden).then(({ error }) => {
+            if (error) {
+              console.error(error)
+              return
+            }
+            getDelivery(selectedDelivery).then(({ data }) => {
+              if (data) setDeliveryData(data)
+            })
+          })
+        }
+      }
+
+      setTouchDraggingId(null)
+      setTouchDragOverId(null)
+      setTouchOffsetY(0)
+      touchDragOverIdRef.current = null
+    }
+
+    const handleEnd = () => commitDrag(true)
+    const handleCancel = () => commitDrag(false)
+
+    document.addEventListener('touchmove', updateDrag, { passive: false })
+    document.addEventListener('touchend', handleEnd)
+    document.addEventListener('touchcancel', handleCancel)
+  }
+
 	return (
     <div className="flex flex-col">
       <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={editingDelivery} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
@@ -277,7 +382,7 @@ export default function App() {
             )}
           </div>
 
-        <div className="grid gap-3 md:hidden">
+        <div ref={mobileListRef} className="grid gap-3 md:hidden">
           {deliveryData.map((r) => {
             const laregionCount = isHoliday(selectedDay) && r.dia_festivo === 'entregar' ? r.festivo : r[dayMap[selectedDay]]
             const hasLaregion = shouldDeliver(r, selectedDay)
@@ -285,6 +390,8 @@ export default function App() {
             const hasAtlantico = (r.atlantico || 0) > 0
             const hasMagazine = selectedDay === 'sunday' && r.revista
             const showCard = (r.baja && showBajas) || hasLaregion || hasVoz || hasAtlantico || hasMagazine
+            const isTouchDragging = touchDraggingId === r.id
+            const isTouchDragOver = touchDragOverId === r.id && touchDraggingId !== r.id
 
             if (!showCard) return null
 
@@ -297,11 +404,25 @@ export default function App() {
             }
 
             return (
-              <Card key={r.id} className={`rounded-2xl shadow-sm ${r.baja ? "bg-red-100" : accentClass} hover:shadow-md transition-shadow`}>
+              <Card
+                key={r.id}
+                data-id={r.id}
+                className={`rounded-2xl shadow-sm ${r.baja ? "bg-red-100" : accentClass} hover:shadow-md transition-shadow ${isTouchDragging ? 'opacity-50 ring-2 ring-blue-400 z-10' : ''} ${isTouchDragOver ? 'ring-2 ring-blue-400' : ''} ${touchDraggingId ? 'touch-action-none' : ''} ${profile?.canEdit ? 'select-none [-webkit-user-select:none]' : ''}`}
+                style={{
+                  WebkitTouchCallout: profile?.canEdit ? 'none' : undefined,
+                  transform: isTouchDragging ? `translateY(${touchOffsetY}px)` : undefined,
+                }}
+                onTouchStart={(e) => handleTouchStart(e, r)}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm font-semibold">
-                      {translate('delivery', language)} {r.numero} · {profile && profile.canEdit && (<span>{translate('order', language)} {r.orden}</span>)}
+                      {profile && profile.canEdit && (
+                        <span title={translate('dragToReorder', language)} className="text-gray-400 mr-1">⋮⋮</span>
+                      )}
+                      {translate('delivery', language)} {r.numero}{profile && profile.canEdit && (<span> · {translate('order', language)} {r.orden}</span>)}
                     </div>
                     <div className="flex gap-2 flex-wrap justify-end">
                       {r.baja && (
