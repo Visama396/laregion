@@ -31,10 +31,11 @@ export default function App() {
   const [touchDraggingId, setTouchDraggingId] = useState(null)
   const [touchDragOverId, setTouchDragOverId] = useState(null)
   const [touchOffsetY, setTouchOffsetY] = useState(0)
-  const longPressTimer = useRef(null)
-  const touchStart = useRef({ x: 0, y: 0 })
+  const touchStart = useRef({})
   const mobileListRef = useRef(null)
   const touchDragOverIdRef = useRef(null)
+  const pointerDragActiveRef = useRef(false)
+  const onDragWheelRef = useRef(null)
 
   useEffect(() => {
     const today = new Date()
@@ -159,11 +160,22 @@ export default function App() {
     setEditingDelivery(null)
   }
 
+  const clearWheelListener = () => {
+    if (onDragWheelRef.current) {
+      window.removeEventListener('wheel', onDragWheelRef.current)
+      onDragWheelRef.current = null
+    }
+  }
+
   const handleDragStart = (e, delivery) => {
     if (!profile?.canEdit) return
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/plain', String(delivery.id))
     setDraggingId(delivery.id)
+    if (!onDragWheelRef.current) {
+      onDragWheelRef.current = (ev) => window.scrollBy(0, ev.deltaY)
+      window.addEventListener('wheel', onDragWheelRef.current, { passive: true })
+    }
   }
 
   const handleDragOver = (e, delivery) => {
@@ -178,6 +190,7 @@ export default function App() {
     const to = deliveryData.findIndex((d) => d.id === targetRow.id)
 
     if (from === -1 || to === -1 || from === to) {
+      clearWheelListener()
       setDraggingId(null)
       setDragOverId(null)
       return
@@ -189,6 +202,7 @@ export default function App() {
     reorderDelivery(moved.id, moved.numero, moved.orden, newOrden).then(({ error }) => {
       if (error) {
         console.error(error)
+        clearWheelListener()
         setDraggingId(null)
         setDragOverId(null)
         return
@@ -196,112 +210,84 @@ export default function App() {
       getDelivery(selectedDelivery).then(({ data }) => {
         if (data) setDeliveryData(data)
       })
+      clearWheelListener()
       setDraggingId(null)
       setDragOverId(null)
     })
   }
 
   const handleDragEnd = () => {
+    clearWheelListener()
     setDraggingId(null)
     setDragOverId(null)
   }
 
-  const handleTouchStart = (e, delivery) => {
+  const startPointerDrag = (e, delivery) => {
     if (!profile?.canEdit) return
-    if (e.target.closest('button, a, [role="button"]')) return
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen') return
+    e.preventDefault()
+    try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
 
-    const touch = e.touches[0]
-    touchStart.current = { x: touch.clientX, y: touch.clientY }
-
-    clearTimeout(longPressTimer.current)
-    longPressTimer.current = setTimeout(() => beginTouchDrag(delivery), 500)
-  }
-
-  const handleTouchMove = (e) => {
-    if (!profile?.canEdit || touchDraggingId) return
-    const touch = e.touches[0]
-    const dx = touch.clientX - touchStart.current.x
-    const dy = touch.clientY - touchStart.current.y
-
-    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-      clearTimeout(longPressTimer.current)
-    }
-  }
-
-  const handleTouchEnd = () => {
-    clearTimeout(longPressTimer.current)
-  }
-
-  const beginTouchDrag = (delivery) => {
+    touchStart.current = { y: e.clientY, id: delivery.id }
+    touchDragOverIdRef.current = delivery.id
+    pointerDragActiveRef.current = true
     setTouchDraggingId(delivery.id)
     setTouchDragOverId(delivery.id)
     setTouchOffsetY(0)
-    touchDragOverIdRef.current = delivery.id
+  }
 
-    const updateDrag = (e) => {
-      const touch = e.touches[0]
-      if (!touch) return
-      e.preventDefault()
+  const movePointerDrag = (e) => {
+    if (!pointerDragActiveRef.current) return
+    e.preventDefault()
+    const dy = e.clientY - touchStart.current.y
+    setTouchOffsetY(dy)
 
-      const dy = touch.clientY - touchStart.current.y
-      setTouchOffsetY(dy)
-
-      let closestId = null
-      let closestDist = Infinity
-      mobileListRef.current?.querySelectorAll('[data-slot="card"]').forEach((el) => {
-        const id = Number(el.dataset.id)
-        if (!el.dataset.id || id === delivery.id) return
-        const rect = el.getBoundingClientRect()
-        const dist = Math.abs(touch.clientY - (rect.top + rect.height / 2))
-        if (dist < closestDist) {
-          closestDist = dist
-          closestId = id
-        }
-      })
-
-      if (closestId !== null && closestId !== touchDragOverIdRef.current) {
-        touchDragOverIdRef.current = closestId
-        setTouchDragOverId(closestId)
+    let closestId = null
+    let closestDist = Infinity
+    mobileListRef.current?.querySelectorAll('[data-slot="card"]').forEach((el) => {
+      const id = Number(el.dataset.id)
+      if (!el.dataset.id || id === touchStart.current.id) return
+      const rect = el.getBoundingClientRect()
+      const dist = Math.abs(e.clientY - (rect.top + rect.height / 2))
+      if (dist < closestDist) {
+        closestDist = dist
+        closestId = id
       }
+    })
+
+    if (closestId !== null && closestId !== touchDragOverIdRef.current) {
+      touchDragOverIdRef.current = closestId
+      setTouchDragOverId(closestId)
     }
+  }
 
-    const commitDrag = (reorder) => {
-      document.removeEventListener('touchmove', updateDrag)
-      document.removeEventListener('touchend', handleEnd)
-      document.removeEventListener('touchcancel', handleCancel)
+  const endPointerDrag = () => {
+    const reorder = pointerDragActiveRef.current
+    pointerDragActiveRef.current = false
 
-      if (reorder) {
-        const fromIndex = deliveryData.findIndex((d) => d.id === delivery.id)
-        const toIndex = deliveryData.findIndex((d) => d.id === touchDragOverIdRef.current)
-
-        if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
-          const moved = deliveryData[fromIndex]
-          const newOrden = deliveryData[toIndex].orden
-
-          reorderDelivery(moved.id, moved.numero, moved.orden, newOrden).then(({ error }) => {
-            if (error) {
-              console.error(error)
-              return
-            }
-            getDelivery(selectedDelivery).then(({ data }) => {
-              if (data) setDeliveryData(data)
-            })
+    if (reorder) {
+      const fromIndex = deliveryData.findIndex((d) => d.id === touchStart.current.id)
+      const toIndex = deliveryData.findIndex((d) => d.id === touchDragOverIdRef.current)
+      if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+        const moved = deliveryData[fromIndex]
+        const newOrden = deliveryData[toIndex].orden
+        reorderDelivery(moved.id, moved.numero, moved.orden, newOrden).then(({ error }) => {
+          if (error) {
+            console.error(error)
+            return
+          }
+          getDelivery(selectedDelivery).then(({ data }) => {
+            if (data) setDeliveryData(data)
           })
-        }
+        })
       }
-
-      setTouchDraggingId(null)
-      setTouchDragOverId(null)
-      setTouchOffsetY(0)
-      touchDragOverIdRef.current = null
     }
 
-    const handleEnd = () => commitDrag(true)
-    const handleCancel = () => commitDrag(false)
-
-    document.addEventListener('touchmove', updateDrag, { passive: false })
-    document.addEventListener('touchend', handleEnd)
-    document.addEventListener('touchcancel', handleCancel)
+    setTouchDraggingId(null)
+    setTouchDragOverId(null)
+    setTouchOffsetY(0)
+    touchDragOverIdRef.current = null
+    touchStart.current = {}
   }
 
 	return (
@@ -350,6 +336,10 @@ export default function App() {
             {deliveryData.length > 0 && (
               <p className="text-sm font-semibold">
                 📰 {deliveryData.filter(r => shouldDeliver(r, selectedDay)).reduce((acc, r) => acc + (r[dayMap[selectedDay]] || 0), 0)} {translate('newspapers', language)}
+                {selectedDay === 'sunday' && (() => {
+                  const magazineTotal = deliveryData.filter(r => shouldDeliver(r, selectedDay) && r.revista).reduce((acc, r) => acc + (r.revista || 0), 0)
+                  return magazineTotal > 0 ? <> · 📔 {magazineTotal} {translate('magazines', language)}</> : null
+                })()}
               </p>
             )}
           </div>
@@ -412,15 +402,22 @@ export default function App() {
                   WebkitTouchCallout: profile?.canEdit ? 'none' : undefined,
                   transform: isTouchDragging ? `translateY(${touchOffsetY}px)` : undefined,
                 }}
-                onTouchStart={(e) => handleTouchStart(e, r)}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
               >
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm font-semibold">
                       {profile && profile.canEdit && (
-                        <span title={translate('dragToReorder', language)} className="text-gray-400 mr-1">⋮⋮</span>
+                        <span
+                          role="button"
+                          title={translate('dragToReorder', language)}
+                          className="text-gray-400 mr-1 cursor-grab select-none [-webkit-user-select:none] active:cursor-grabbing"
+                          style={{ touchAction: 'none', WebkitTouchCallout: 'none' }}
+                          onPointerDown={(e) => startPointerDrag(e, r)}
+                          onPointerMove={movePointerDrag}
+                          onPointerUp={endPointerDrag}
+                          onPointerCancel={endPointerDrag}
+                          onContextMenu={(e) => e.preventDefault()}
+                        >⋮⋮</span>
                       )}
                       {translate('delivery', language)} {r.numero}{profile && profile.canEdit && (<span> · {translate('order', language)} {r.orden}</span>)}
                     </div>
@@ -537,8 +534,8 @@ export default function App() {
                             </td>
                       })
                     }
-                    <td className="p-2">{delivery.voz_de_galicia}</td>
-                    <td className="p-2">{delivery.atlantico}</td>
+                    <td className={`p-2 ${delivery.voz_de_galicia > 0 ? 'bg-red-200' : ''}`}>{delivery.voz_de_galicia}</td>
+                    <td className={`p-2 ${delivery.atlantico > 0 ? 'bg-blue-200' : ''}`}>{delivery.atlantico}</td>
                     {profile && profile.canEdit && <td className="p-2 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
