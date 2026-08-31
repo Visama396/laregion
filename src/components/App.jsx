@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-import { getDelivery, getHolidays, insertAddress, updateAddress } from "@/utils/supabase"
+import { getDelivery, getHolidays, insertAddress, updateAddress, reorderDelivery } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
 import UserForm from "@/components/UserForm"
@@ -26,6 +26,8 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(days[0])
   const [holidays, setHolidays] = useState([])
   const [showBajas, setShowBajas] = useState(false)
+  const [draggingId, setDraggingId] = useState(null)
+  const [dragOverId, setDragOverId] = useState(null)
 
   useEffect(() => {
     const today = new Date()
@@ -150,6 +152,53 @@ export default function App() {
     setEditingDelivery(null)
   }
 
+  const handleDragStart = (e, delivery) => {
+    if (!profile?.canEdit) return
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(delivery.id))
+    setDraggingId(delivery.id)
+  }
+
+  const handleDragOver = (e, delivery) => {
+    if (!profile?.canEdit) return
+    e.preventDefault()
+    setDragOverId(delivery.id)
+  }
+
+  const handleDrop = (e, targetRow) => {
+    e.preventDefault()
+    const from = deliveryData.findIndex((d) => d.id === draggingId)
+    const to = deliveryData.findIndex((d) => d.id === targetRow.id)
+
+    if (from === -1 || to === -1 || from === to) {
+      setDraggingId(null)
+      setDragOverId(null)
+      return
+    }
+
+    const moved = deliveryData[from]
+    const newOrden = targetRow.orden
+
+    reorderDelivery(moved.id, moved.numero, moved.orden, newOrden).then(({ error }) => {
+      if (error) {
+        console.error(error)
+        setDraggingId(null)
+        setDragOverId(null)
+        return
+      }
+      getDelivery(selectedDelivery).then(({ data }) => {
+        if (data) setDeliveryData(data)
+      })
+      setDraggingId(null)
+      setDragOverId(null)
+    })
+  }
+
+  const handleDragEnd = () => {
+    setDraggingId(null)
+    setDragOverId(null)
+  }
+
 	return (
     <div className="flex flex-col">
       <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={editingDelivery} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
@@ -202,31 +251,31 @@ export default function App() {
 
         )}
 
-        <div className="flex gap-2 my-4 justify-between items-center">
-          <div className="flex gap-2">
-            {days.map((d) => (
-              <Button
-                key={d}
-                variant={selectedDay === d ? "default" : "outline"}
-                onClick={() => setSelectedDay(d)}
-                className="capitalize"
-              >
-                {translate(d, language).slice(0,1)}
-              </Button>
-            ))}
-          </div>
-          <div className="md:hidden">
-            {profile && profile.canEdit && (
+          <div className="flex flex-col gap-2 my-4 items-stretch">
+            <div className="flex gap-2 justify-between items-center">
+              <div className="flex flex-wrap gap-2">
+                {days.map((d) => (
+                  <Button
+                    key={d}
+                    variant={selectedDay === d ? "default" : "outline"}
+                    onClick={() => setSelectedDay(d)}
+                    className="capitalize"
+                  >
+                    {translate(d, language).slice(0,1)}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {profile && deliveryData.some((r) => r.baja) && (
               <Button
                 variant={showBajas ? "default" : "outline"}
                 onClick={() => setShowBajas((prev) => !prev)}
-                className="text-xs"
+                className="text-xs md:hidden"
               >
                 {translate('showbajas', language)}
               </Button>
             )}
           </div>
-        </div>
 
         <div className="grid gap-3 md:hidden">
           {deliveryData.map((r) => {
@@ -234,7 +283,8 @@ export default function App() {
             const hasLaregion = shouldDeliver(r, selectedDay)
             const hasVoz = (r.voz_de_galicia || 0) > 0
             const hasAtlantico = (r.atlantico || 0) > 0
-            const showCard = (r.baja && showBajas) || hasLaregion || hasVoz || hasAtlantico
+            const hasMagazine = selectedDay === 'sunday' && r.revista
+            const showCard = (r.baja && showBajas) || hasLaregion || hasVoz || hasAtlantico || hasMagazine
 
             if (!showCard) return null
 
@@ -243,6 +293,7 @@ export default function App() {
               if (hasVoz && hasAtlantico) accentClass = "bg-gradient-to-br from-red-100 via-white to-blue-100 ring-1 ring-red-200"
               else if (hasVoz) accentClass = "bg-gradient-to-br from-red-50 to-red-200 ring-1 ring-red-200"
               else if (hasAtlantico) accentClass = "bg-gradient-to-br from-blue-50 to-blue-200 ring-1 ring-blue-200"
+              else if (hasMagazine) accentClass = "bg-gradient-to-br from-yellow-50 to-yellow-200 ring-1 ring-yellow-200"
             }
 
             return (
@@ -332,9 +383,21 @@ export default function App() {
             <tbody>
               {deliveryData.map((delivery, index) => {
                 const isLastRow = index === deliveryData.length - 1
+                const isDragging = draggingId === delivery.id
+                const isDragOver = dragOverId === delivery.id
                 return (
-                  <tr key={delivery.id} className={`${delivery.baja ? 'bg-red-100 rounded-md' : ''}`}>
-                    {profile && profile.canEdit && <td className="p-2">{delivery.orden}</td>}
+                  <tr
+                    key={delivery.id}
+                    draggable={!!profile?.canEdit}
+                    onDragStart={(e) => { handleDragStart(e, delivery) }}
+                    onDragOver={(e) => handleDragOver(e, delivery)}
+                    onDrop={(e) => handleDrop(e, delivery)}
+                    onDragEnd={handleDragEnd}
+                    className={`${delivery.baja ? 'bg-red-100 rounded-md' : ''} ${profile?.canEdit ? 'cursor-grab' : ''} ${isDragging ? 'opacity-50' : ''} ${isDragOver && draggingId !== delivery.id ? 'ring-2 ring-blue-400' : ''}`}
+                  >
+                    {profile && profile.canEdit && <td className="p-2">
+                      <span className="inline-flex items-center gap-1" title="Drag to reorder">⋮⋮ {delivery.orden}</span>
+                    </td>}
                     <td className="p-2">
                       <p>{delivery.direccion}</p>
                       {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}

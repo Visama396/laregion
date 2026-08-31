@@ -45,9 +45,9 @@ export default function AddDeliveryForm({ language, selectedDelivery, selectable
 
   const resetForm = (resetNumero = false) => {
     if (resetNumero) {
-      setForm({...form, numero: 0, orden: 0, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1})
+      setForm(prev => ({...prev, numero: 0, orden: 0, direccion: "", extra: "", revista: false, baja: false, voz_de_galicia: 0, atlantico: 0, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1}))
     } else {
-      setForm({...form, direccion: "", extra: "", revista: false, baja: false, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1, orden: form.orden + 1})
+      setForm(prev => ({...prev, orden: (prev.orden || 0) + 1, direccion: "", extra: "", revista: false, baja: false, voz_de_galicia: 0, atlantico: 0, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1}))
     }
   }
 
@@ -72,7 +72,24 @@ export default function AddDeliveryForm({ language, selectedDelivery, selectable
 
   useEffect(() => {
     if (selectedDelivery > 0 && showForm) {
-      setForm(prev => ({ ...prev, numero: selectedDelivery }))
+      setForm(prev => ({
+        ...prev,
+        numero: selectedDelivery,
+        orden: 0,
+        direccion: "",
+        extra: "",
+        revista: false,
+        baja: false,
+        voz_de_galicia: 0,
+        atlantico: 0,
+        lunes: 1,
+        martes: 1,
+        miercoles: 1,
+        jueves: 1,
+        viernes: 1,
+        sabado: 1,
+        domingo: 1
+      }))
     }
   }, [showForm])
 

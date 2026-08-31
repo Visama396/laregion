@@ -68,6 +68,19 @@ export const updateAddress = async (address: any) => {
   return { data, error }
 }
 
+export const reorderDelivery = async (id: number, numero: number, ordenViejo: number, ordenNuevo: number) => {
+  const { error } = await supabase.rpc('reorder_delivery', {
+    p_id: id,
+    p_numero: numero,
+    p_orden_viejo: ordenViejo,
+    p_orden_nuevo: ordenNuevo
+  })
+  if (error) return { error }
+
+  const { error: updateError } = await supabase.from('deliveries').update({ orden: ordenNuevo }).eq('id', id)
+  return { error: updateError }
+}
+
 export const getHolidays = async () => {
   const { data, error } = await supabase.from('holidays').select()
   return { data, error }
