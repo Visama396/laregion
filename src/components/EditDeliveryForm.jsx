@@ -54,7 +54,7 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
     return (
       <div className='fixed flex inset-0 justify-center items-center bg-black/95 z-10'>
         <div className="bg-white p-4">
-          <h2 className="text-3xl font-semibold">{translate("addaddress", language)}</h2>
+          <h2 className="text-3xl font-semibold">{translate("editaddress", language)}</h2>
           <div className="flex flex-col mt-4 gap-4">
             <div className="flex items-end gap-4">
               <div className="flex items-center gap-2">
@@ -112,6 +112,14 @@ export default function EditDeliveryForm({ showForm, setShowEditForm, delivery, 
                   <Input disabled={!canEdit} id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
                 </div>
               ))}
+              <div>
+                <label htmlFor="">Voz de Galicia</label>
+                <Input disabled={!canEdit} id="voz_de_galicia" type="number" placeholder={form.voz_de_galicia} value={form.voz_de_galicia} onChange={(e) => handleChange("voz_de_galicia", e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="">Atlántico</label>
+                <Input disabled={!canEdit} id="atlantico" type="number" placeholder={form.atlantico} value={form.atlantico} onChange={(e) => handleChange("atlantico", e.target.value)} />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <Button disabled={!canEdit} onClick={handleSubmit}>{translate('edit', language)}</Button>
