@@ -513,10 +513,10 @@ export default function App() {
                     onDragEnd={handleDragEnd}
                     className={`${delivery.baja ? 'bg-red-100 rounded-md' : ''} ${profile?.canEdit ? 'cursor-grab' : ''} ${isDragging ? 'opacity-50' : ''} ${isDragOver && draggingId !== delivery.id ? 'ring-2 ring-blue-400' : ''}`}
                   >
-                    {profile && profile.canEdit && <td className="p-2">
+                    {profile && profile.canEdit && <td className="p-2 border-b border-gray-200">
                       <span className="inline-flex items-center gap-1" title="Drag to reorder">⋮⋮ {delivery.orden}</span>
                     </td>}
-                    <td className="p-2">
+                    <td className="p-2 border-b border-gray-200">
                       <p>{delivery.direccion}</p>
                       {delivery.extra && <p className="text-sm text-gray-400">{delivery.extra}</p>}
                     </td>
@@ -524,7 +524,7 @@ export default function App() {
                       days.map((day) => {
                         const isSelected = selectedDay === day
                         const isFestivo = isHoliday(day) && delivery.dia_festivo === 'entregar'
-                        return <td key={day} className={`p-2
+                        return <td key={day} className={`p-2 border-b border-gray-200
                               ${delivery.baja ? 'bg-red-100' :
                                 isFestivo ? 'bg-purple-100' :
                                 day === 'sunday' && delivery.revista ? 'bg-yellow-200' :
@@ -534,9 +534,9 @@ export default function App() {
                             </td>
                       })
                     }
-                    <td className={`p-2 ${delivery.voz_de_galicia > 0 ? 'bg-red-200' : ''}`}>{delivery.voz_de_galicia}</td>
-                    <td className={`p-2 ${delivery.atlantico > 0 ? 'bg-blue-200' : ''}`}>{delivery.atlantico}</td>
-                    {profile && profile.canEdit && <td className="p-2 text-right">
+                    <td className={`p-2 border-b border-gray-200 ${delivery.voz_de_galicia > 0 ? 'bg-red-200' : ''}`}>{delivery.voz_de_galicia}</td>
+                    <td className={`p-2 border-b border-gray-200 ${delivery.atlantico > 0 ? 'bg-blue-200' : ''}`}>{delivery.atlantico}</td>
+                    {profile && profile.canEdit && <td className="p-2 border-b border-gray-200 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="size-8">
