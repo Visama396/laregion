@@ -6,7 +6,6 @@ Each deliverer logs in, selects one of their assigned routes (`numero`), and see
 
 ## How it works
 
-- **Auth + profiles (Supabase Auth):** login with username/password (mapped internally to `<name>@app.local`). A `profiles` row defines which route numbers the user can see (`deliveries: number[]`) and whether they can edit (`canEdit: boolean`).
 - **Routes (`deliveries` table):** one row per stop, keyed by `numero` (route) + `orden` (position in route). Fields per stop: `direccion`, `extra`, per-weekday copy counts (`lunes`…`domingo`), `atlantico`, `revista` (Sunday magazine), `festivo` + `dia_festivo` (`normal` | `entregar` | `no_entregar`), `baja` (unsubscribed).
 - **Daily view:** defaults to the current weekday. Totals copies for the selected day, applies holiday overrides from the `holidays` table, and hides `baja` stops unless toggled. Mobile shows cards, desktop shows a full week table.
 - **Editing:** add stops (auto-appends `orden`, shifts via `shift_orden` RPC), edit stops, drag-to-reorder (HTML5 DnD on desktop, pointer long-press drag on mobile, persisted via `reorder_delivery` RPC), subscribe/unsubscribe (`baja` flag).
