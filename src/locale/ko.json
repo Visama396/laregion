@@ -45,5 +45,15 @@
   "festivo_entregar": "배달하기",
   "festivo_no_entregar": "배달 안 함",
   "showbajas": "탈퇴 표시",
-  "dragToReorder": "길게 누르고 드래그하여 재정렬"
+  "dragToReorder": "길게 누르고 드래그하여 재정렬",
+  "changePassword": "비밀번호 변경",
+  "changePasswordHelp": "다른 기기에서는 로그아웃됩니다.",
+  "newPassword": "새 비밀번호",
+  "confirmPassword": "새 비밀번호 확인",
+  "updatePassword": "비밀번호 업데이트",
+  "updating": "업데이트 중...",
+  "passwordMin": "새 비밀번호는 4자 이상이어야 합니다",
+  "passwordMismatch": "비밀번호가 일치하지 않습니다",
+  "passwordUpdated": "비밀번호가 업데이트되었습니다. 다른 기기에서는 로그아웃되었습니다.",
+  "passwordUpdatedPartial": "비밀번호는 업데이트되었지만 다른 기기에서 로그아웃하지 못했습니다."
 }

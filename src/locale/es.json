@@ -45,5 +45,15 @@
   "festivo_entregar": "Entregar",
   "festivo_no_entregar": "No entregar",
   "showbajas": "Mostrar bajas",
-  "dragToReorder": "Mantén pulsado y arrastra para reordenar"
+  "dragToReorder": "Mantén pulsado y arrastra para reordenar",
+  "changePassword": "Cambiar contraseña",
+  "changePasswordHelp": "Se cerrará la sesión en tus otros dispositivos.",
+  "newPassword": "Nueva contraseña",
+  "confirmPassword": "Confirmar nueva contraseña",
+  "updatePassword": "Actualizar contraseña",
+  "updating": "Actualizando...",
+  "passwordMin": "La nueva contraseña debe tener al menos 4 caracteres",
+  "passwordMismatch": "Las contraseñas no coinciden",
+  "passwordUpdated": "Contraseña actualizada. Se ha cerrado la sesión en los otros dispositivos.",
+  "passwordUpdatedPartial": "Contraseña actualizada, pero no se pudo cerrar la sesión en los otros dispositivos."
 }

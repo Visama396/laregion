@@ -45,5 +45,15 @@
   "festivo_entregar": "配達する",
   "festivo_no_entregar": "配達しない",
   "showbajas": "退会済みを表示",
-  "dragToReorder": "長押ししてドラッグで並べ替え"
+  "dragToReorder": "長押ししてドラッグで並べ替え",
+  "changePassword": "パスワードを変更",
+  "changePasswordHelp": "他のデバイスはログアウトされます。",
+  "newPassword": "新しいパスワード",
+  "confirmPassword": "新しいパスワードを確認",
+  "updatePassword": "パスワードを更新",
+  "updating": "更新中...",
+  "passwordMin": "新しいパスワードは4文字以上にしてください",
+  "passwordMismatch": "パスワードが一致しません",
+  "passwordUpdated": "パスワードを更新しました。他のセッションはログアウトされました。",
+  "passwordUpdatedPartial": "パスワードは更新されましたが、他のセッションをログアウトできませんでした。"
 }

@@ -25,6 +25,17 @@ export const getUser = async (name: string, password: string) => {
 	return user
 }
 
+export const changePassword = async (newPassword: string) => {
+	const { error } = await supabase.auth.updateUser({ password: newPassword })
+	if (error) return { error }
+
+	// Close the other sessions: if the password leaked, the other devices lose
+	// access. The "others" scope keeps the current session open.
+	const { error: othersError } = await supabase.auth.signOut({ scope: 'others' })
+
+	return { othersSignedOut: !othersError }
+}
+
 export const getProfile = async (userId: string) => {
 	const { data, error } = await supabase.from('profiles').select().eq('id', userId).single()
 	return { data, error }

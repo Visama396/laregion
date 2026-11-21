@@ -45,5 +45,15 @@
   "festivo_entregar": "Zustellen",
   "festivo_no_entregar": "Nicht zustellen",
   "showbajas": "Abgemeldete anzeigen",
-  "dragToReorder": "Gedrückt halten und ziehen zum Sortieren"
+  "dragToReorder": "Gedrückt halten und ziehen zum Sortieren",
+  "changePassword": "Passwort ändern",
+  "changePasswordHelp": "Deine anderen Geräte werden abgemeldet.",
+  "newPassword": "Neues Passwort",
+  "confirmPassword": "Neues Passwort bestätigen",
+  "updatePassword": "Passwort aktualisieren",
+  "updating": "Wird aktualisiert...",
+  "passwordMin": "Das neue Passwort muss mindestens 4 Zeichen haben",
+  "passwordMismatch": "Die Passwörter stimmen nicht überein",
+  "passwordUpdated": "Passwort aktualisiert. Die anderen Sitzungen wurden abgemeldet.",
+  "passwordUpdatedPartial": "Passwort aktualisiert, aber die anderen Sitzungen konnten nicht abgemeldet werden."
 }

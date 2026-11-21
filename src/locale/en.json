@@ -45,5 +45,15 @@
   "festivo_entregar": "Deliver",
   "festivo_no_entregar": "Do not deliver",
   "showbajas": "Show on leave",
-  "dragToReorder": "Long press and drag to reorder"
+  "dragToReorder": "Long press and drag to reorder",
+  "changePassword": "Change password",
+  "changePasswordHelp": "You will be signed out on your other devices.",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm new password",
+  "updatePassword": "Update password",
+  "updating": "Updating...",
+  "passwordMin": "New password must be at least 4 characters",
+  "passwordMismatch": "Passwords do not match",
+  "passwordUpdated": "Password updated. Other devices have been signed out.",
+  "passwordUpdatedPartial": "Password updated, but other devices could not be signed out."
 }
