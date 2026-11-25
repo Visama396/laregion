@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
 import { getProfile, getUser, getCachedUser, changePassword } from "../utils/supabase"
 import { translate } from "../utils/translate"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export default function UserForm({ profile, setProfile, language }) {
+export default function UserForm({ profile, setProfile, language, setLanguage }) {
 	const [name, setName] = useState("")
 	const [password, setPassword] = useState("")
 	const [showForm, setShowForm] = useState(true)
@@ -169,6 +170,25 @@ export default function UserForm({ profile, setProfile, language }) {
               <form onSubmit={handlePasswordSubmit} className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-6 shadow-lg">
                 <h2 className="text-2xl font-bold">{translate("changePassword", language)}</h2>
                 <p className="text-sm text-gray-600">{translate("changePasswordHelp", language)}</p>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold">{translate("selectlanguage", language)}</label>
+                  <Select defaultValue={language} onValueChange={(value) => setLanguage(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={translate("selectlanguage", language)} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="es">{translate("spanish", language)}</SelectItem>
+                        <SelectItem value="en">{translate("english", language)}</SelectItem>
+                        <SelectItem value="de">{translate("german", language)}</SelectItem>
+                        <SelectItem value="ja">{translate("japanese", language)}</SelectItem>
+                        <SelectItem value="ko">{translate("korean", language)}</SelectItem>
+                        <SelectItem value="uk">{translate("ukrainian", language)}</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="flex flex-col gap-1">
                   <label htmlFor="new-password" className="text-sm font-semibold">{translate("newPassword", language)}</label>

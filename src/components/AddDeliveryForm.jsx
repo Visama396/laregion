@@ -1,66 +1,39 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-
+import DeliveryFormFields, {
+  createEmptyDeliveryForm,
+  normalizeDeliveryForm,
+} from "@/components/DeliveryFormFields"
+import FormModal, { FormMessage } from "@/components/FormModal"
 import { getDeliveryCount } from "@/utils/supabase"
 import { translate } from "@/utils/translate"
 
 export default function AddDeliveryForm({ language, selectedDelivery, selectableDeliveries, onAdd }) {
-  const dayMap = {lunes: "monday", martes: "tuesday", miercoles: "wednesday", jueves: "thursday", viernes: "friday", sabado: "saturday", domingo: "sunday"}
-  const [form, setForm] = useState({
-    direccion: "",
-    extra: "",
-    numero: 0,
-    orden: 1,
-    lunes: 1,
-    martes: 1,
-    miercoles: 1,
-    jueves: 1,
-    viernes: 1,
-    sabado: 1,
-    domingo: 1,
-    baja: false,
-    revista: false,
-    voz_de_galicia: 0,
-    atlantico: 0,
-    dia_festivo: "normal",
-    festivo: 1
-  })
-
+  const [form, setForm] = useState(createEmptyDeliveryForm)
   const [showForm, setShowForm] = useState(false)
-  const [canEdit, setCanEdit] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const [addressError, setAddressError] = useState("")
+
+  const fieldsDisabled = saving || !form.numero
 
   const handleChange = (field, value) => {
-    setForm(prev => ({ ...prev, [field]: value }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onAdd(form)
-    resetForm()
-  }
-
-  const resetForm = (resetNumero = false) => {
-    if (resetNumero) {
-      setForm(prev => ({...prev, numero: 0, orden: 0, direccion: "", extra: "", revista: false, baja: false, voz_de_galicia: 0, atlantico: 0, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1}))
-    } else {
-      setForm(prev => ({...prev, orden: (prev.orden || 0) + 1, direccion: "", extra: "", revista: false, baja: false, voz_de_galicia: 0, atlantico: 0, lunes: 1, martes: 1, miercoles: 1, jueves: 1, viernes: 1, sabado: 1, domingo: 1}))
-    }
+    setForm((prev) => ({ ...prev, [field]: value }))
+    if (success) setSuccess("")
+    if (field === "direccion" && addressError) setAddressError("")
   }
 
   const updateOrden = async (numero) => {
-    const { count, error } = await getDeliveryCount(numero)
-    if (error) {
-      console.error(error)
+    const { count, error: countError } = await getDeliveryCount(numero)
+    if (countError) {
+      console.error(countError)
       return
     }
 
-    if (count != null || count != undefined) {
-      setForm(prev => ({ ...prev, orden: count + 1 }))
-      setCanEdit(true)
+    if (count != null) {
+      setForm((prev) => ({ ...prev, orden: count + 1 }))
     }
   }
 
@@ -70,115 +43,115 @@ export default function AddDeliveryForm({ language, selectedDelivery, selectable
     }
   }, [form.numero])
 
-  useEffect(() => {
-    if (selectedDelivery > 0 && showForm) {
-      setForm(prev => ({
-        ...prev,
-        numero: selectedDelivery,
-        orden: 0,
-        direccion: "",
-        extra: "",
-        revista: false,
-        baja: false,
-        voz_de_galicia: 0,
-        atlantico: 0,
-        lunes: 1,
-        martes: 1,
-        miercoles: 1,
-        jueves: 1,
-        viernes: 1,
-        sabado: 1,
-        domingo: 1
-      }))
+  const openForm = () => {
+    setForm({
+      ...createEmptyDeliveryForm(),
+      numero: selectedDelivery > 0 ? selectedDelivery : 0,
+    })
+    setError("")
+    setSuccess("")
+    setAddressError("")
+    setSaving(false)
+    setShowForm(true)
+  }
+
+  const closeForm = () => {
+    if (saving) return
+    setShowForm(false)
+    setError("")
+    setSuccess("")
+    setAddressError("")
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    if (saving) return
+
+    setError("")
+    setSuccess("")
+
+    const normalized = normalizeDeliveryForm(form)
+    let hasError = false
+
+    if (!normalized.numero) {
+      setError(translate("deliveryRequired", language))
+      hasError = true
     }
-  }, [showForm])
+
+    if (!normalized.direccion) {
+      setAddressError(translate("addressRequired", language))
+      hasError = true
+    }
+
+    if (hasError) return
+
+    setSaving(true)
+    let result
+    try {
+      result = await onAdd(normalized)
+    } catch (saveError) {
+      console.error(saveError)
+      result = { error: saveError }
+    } finally {
+      setSaving(false)
+    }
+
+    if (result?.error) {
+      setError(translate("saveError", language))
+      return
+    }
+
+    setSuccess(translate("addressAdded", language))
+    setForm({ ...createEmptyDeliveryForm(), numero: normalized.numero })
+    updateOrden(normalized.numero)
+  }
 
   if (selectableDeliveries.length === 0) {
     return null
   }
 
-  if (showForm) {
+  if (!showForm) {
     return (
-      <div className="fixed flex inset-0 justify-center items-center bg-black/95 z-10">
-        <div className="bg-white p-4">
-          <h2 className="text-3xl font-semibold">{translate("addaddress", language)}</h2>
-          <div className="flex flex-col mt-4 gap-4">
-            <div className="flex items-end gap-4">
-              <div className="flex items-center gap-2">
-                <Select defaultValue={selectedDelivery > 0 ? selectedDelivery: ''} onValueChange={(value) => handleChange("numero", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={translate("selectdelivery", language)} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {selectableDeliveries.map((delivery) => (
-                        <SelectItem key={delivery} value={delivery}>
-                          {translate("delivery", language)} {delivery}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <div className="flex gap-2 items-center">
-                  <Checkbox disabled={!canEdit} id="revista" checked={form.revista} onCheckedChange={(value) => handleChange("revista", value)} />
-                  <label htmlFor="revista">{translate("magazine", language)}</label>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <Checkbox disabled={!canEdit} id="baja" checked={form.baja} onCheckedChange={(value) => handleChange("baja", value)} />
-                  <label htmlFor="baja">{translate("leave", language)}</label>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="orden">{translate("order", language)}</label>
-                <Input disabled={!canEdit} id="orden" type="number" placeholder={form.orden} value={form.orden} onChange={(e) => handleChange("orden", e.target.value)} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Input disabled={!canEdit} placeholder={translate("address", language)} value={form.direccion} onChange={(e) => handleChange("direccion", e.target.value)} />
-              <Input disabled={!canEdit} placeholder={translate("extra", language)} value={form.extra} onChange={(e) => handleChange("extra", e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="dia_festivo">{translate("holidayoption", language)}</label>
-              <Select disabled={!canEdit} value={form.dia_festivo} onValueChange={(value) => handleChange("dia_festivo", value)}>
-                <SelectTrigger id="dia_festivo">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="normal">{translate("festivo_normal", language)}</SelectItem>
-                    <SelectItem value="entregar">{translate("festivo_entregar", language)}</SelectItem>
-                    <SelectItem value="no_entregar">{translate("festivo_no_entregar", language)}</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map((day) => (
-                <div key={day}>
-                  <label htmlFor={day}>{translate(dayMap[day], language)}</label>
-                  <Input disabled={!canEdit} id={day} type="number" placeholder={form[day]} value={form[day]} onChange={(e) => handleChange(day, e.target.value)} />
-                </div>
-              ))}
-              <div>
-                <label htmlFor="">Voz de Galicia</label>
-                <Input disabled={!canEdit} id="voz_de_galicia" type="number" placeholder={form.voz_de_galicia} value={form.voz_de_galicia} onChange={(e) => handleChange("voz_de_galicia", e.target.value)} />
-              </div>
-              <div>
-                <label htmlFor="">Atlántico</label>
-                <Input disabled={!canEdit} id="atlantico" type="number" placeholder={form.atlantico} value={form.atlantico} onChange={(e) => handleChange("atlantico", e.target.value)} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Button disabled={!canEdit} onClick={handleSubmit}>{translate('add', language)}</Button>
-              <Button className="bg-red-400 hover:bg-red-400/80" onClick={() => {resetForm(true); setShowForm(false)}}>{translate('close', language)}</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  } else {
-    return (
-      <Button variant="default" onClick={() => {resetForm(true); setShowForm(true)}}>{translate("addaddress", language)}</Button>
+      <Button type="button" onClick={openForm}>
+        {translate("addaddress", language)}
+      </Button>
     )
   }
+
+  return (
+    <FormModal
+      title={translate("addaddress", language)}
+      description={translate("addAddressHelp", language)}
+      closeLabel={translate("close", language)}
+      onClose={closeForm}
+      footer={
+        <>
+          <Button type="button" variant="outline" onClick={closeForm} disabled={saving}>
+            {translate("close", language)}
+          </Button>
+          <Button
+            type="submit"
+            form="add-delivery-form"
+            disabled={fieldsDisabled || saving}
+          >
+            {saving ? translate("saving", language) : translate("add", language)}
+          </Button>
+        </>
+      }
+    >
+      <form id="add-delivery-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        <DeliveryFormFields
+          form={form}
+          onChange={handleChange}
+          language={language}
+          disabled={fieldsDisabled}
+          deliverySelectDisabled={saving}
+          selectableDeliveries={selectableDeliveries}
+          addressError={addressError}
+        />
+        {error && <FormMessage>{error}</FormMessage>}
+        {success && <FormMessage type="success">{success}</FormMessage>}
+      </form>
+    </FormModal>
+  )
 }

@@ -88,22 +88,22 @@ export default function App() {
   }
 
   const handleAddDelivery = (formData) => {
-    if (formData.direccion.length == 0 || formData.numero == 0) {
-      return
-    } else {
-      insertAddress(formData).then(({ data, error }) => {
-        if (error) {
-          console.error(error)
-          return
-        }
-
-        if (data) {
-          if (selectedDelivery > 0 && data[0].numero == selectedDelivery) {
-            setDeliveryData((prev) => [...prev, ...data])
-          }
-        }
-      })
+    if (formData.direccion.length == 0 || Number(formData.numero) === 0) {
+      return Promise.resolve({ error: new Error("Missing required fields") })
     }
+
+    return insertAddress(formData).then(({ data, error }) => {
+      if (error) {
+        console.error(error)
+        return { error }
+      }
+
+      if (data && selectedDelivery > 0 && data[0].numero == selectedDelivery) {
+        setDeliveryData((prev) => [...prev, ...data])
+      }
+
+      return { data }
+    })
   }
 
   const editRow = (delivery) => {
@@ -138,26 +138,26 @@ export default function App() {
   }
 
   const editAddress = (updatedDelivery) => {
-    updateAddress(updatedDelivery).then(({ data, error }) => {
+    return updateAddress(updatedDelivery).then(({ data, error }) => {
       if (error) {
         console.error(error)
-        return
+        return { error }
       }
 
       if (data && data.length > 0) {
         if (updatedDelivery.orden !== data[0].orden) {
-          getDelivery(selectedDelivery).then(({ data }) => {
-            if (data) setDeliveryData(data)
+          return getDelivery(selectedDelivery).then(({ data: refreshed }) => {
+            if (refreshed) setDeliveryData(refreshed)
+            return { data: refreshed }
           })
-        } else {
-          const updated = data[0]
-          setDeliveryData((prev) => prev.map((d) => d.id === updated.id ? updated : d))
         }
-      }
-    })
 
-    setShowEditForm(false)
-    setEditingDelivery(null)
+        const updated = data[0]
+        setDeliveryData((prev) => prev.map((d) => d.id === updated.id ? updated : d))
+      }
+
+      return { data }
+    })
   }
 
   const clearWheelListener = () => {
@@ -295,25 +295,8 @@ export default function App() {
       <EditDeliveryForm showForm={showEditForm} setShowEditForm={setShowEditForm} delivery={editingDelivery} language={language} selectableDeliveries={selectableDeliveries} onEdit={editAddress} />
 			<div className="flex p-4 justify-between">
         <div className="flex items-center gap-2">
-          <UserForm profile={profile} setProfile={setProfile} language={language} />
+          <UserForm profile={profile} setProfile={setProfile} language={language} setLanguage={setLanguage} />
           {profile && profile.canEdit && <AddDeliveryForm language={language} selectedDelivery={selectedDelivery} selectableDeliveries={selectableDeliveries} onAdd={handleAddDelivery} />}
-        </div>
-        <div>
-          <Select defaultValue={language} onValueChange={(value) => setLanguage(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder={translate("selectlanguage", language)} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="es">{translate("spanish", language)}</SelectItem>
-                <SelectItem value="en">{translate("english", language)}</SelectItem>
-                <SelectItem value="de">{translate("german", language)}</SelectItem>
-                <SelectItem value="ja">{translate("japanese", language)}</SelectItem>
-                <SelectItem value="ko">{translate("korean", language)}</SelectItem>
-                <SelectItem value="uk">{translate("ukrainian", language)}</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
         </div>
       </div>
       <div className="p-4">
